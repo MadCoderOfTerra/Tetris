@@ -39,7 +39,7 @@ public class Grid_ {
 
         for(Block b : BlocksInTheGrid){
             if(timer >= fallSpeed && b.status){
-                if(grid[b.y+1][b.x] == -1 || grid[b.y+1][b.x] == 1){
+                if(!b.canMoveDown(grid)){
                     b.status = false;
                     needToCheckLines = true;
                 }

@@ -5,12 +5,16 @@ public class Square_1x1 extends Block{
         this.y = y;
     }
 
-    public boolean status = true; //true is falling false is stopped
+    @Override
+    public boolean canMoveDown(int[][] grid) {
+        if (y + 1 > 21) return false;
+        return !(grid[y + 1][x] == -1 || grid[y + 1][x] == 1);
+    }
+
 
     @Override
     public int[][] SetOnesInGrid(int[][] grid, boolean status) {
-        grid[y][x] = 2;
-        if(!status) grid[y][x] = 1;
+        grid[y][x] = status ? 2 : 1;
         return grid;
     }
 }

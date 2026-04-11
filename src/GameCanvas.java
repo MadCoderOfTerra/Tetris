@@ -18,8 +18,8 @@ public class GameCanvas extends JPanel implements Runnable{
 
 
 
-        gridd.BlocksInTheGrid.add(new Square_1x1(5,2));
-        gridd.BlocksInTheGrid.add(new Square_1x1(5,3));
+        gridd.BlocksInTheGrid.add(new Square_1x1(3,1));
+        gridd.BlocksInTheGrid.add(new Square_2x2(5,2));
 
     }
 
