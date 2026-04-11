@@ -26,11 +26,6 @@ public class Grid_ {
 
         Collections.sort(BlocksInTheGrid, (a, b) -> b.y - a.y); //Prevent top cube from phasing onto the lowest cube
 
-        for(Block b : BlocksInTheGrid){
-            System.out.println(b.y);
-        }
-
-        System.out.println("\n");
         timer++;
         for(Block b : BlocksInTheGrid){
             if(timer == 30 && b.status){
