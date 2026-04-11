@@ -1,10 +1,12 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class GameCanvas extends JPanel implements Runnable{
     public int Width = 800;
     public int Height = 800;
     public int Fps = 144;
+
 
     Grid_ gridd = new Grid_();
     Thread gameThread; // this thing is used to run the gameloop
