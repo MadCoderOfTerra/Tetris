@@ -1,0 +1,9 @@
+{
+  "name": "Java with Desktop",
+  "image": "mcr.microsoft.com/devcontainers/java:17",
+  "features": {
+    "ghcr.io/devcontainers/features/desktop-lite:1": {
+      "password": "vscode"
+    }
+  }
+}
