@@ -3,6 +3,11 @@ public class Square_2x2 extends Block{
     public Square_2x2(int x, int y){
         this.x = x;
         this.y = y;
+
+        this.matrix = new int[][]{
+            {2, 2},
+            {2, 2}
+        };
     }
 
     @Override
