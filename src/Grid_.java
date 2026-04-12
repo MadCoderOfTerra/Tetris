@@ -17,6 +17,45 @@ public class Grid_ {
 
     int timer = 0;
 
+    public void spawnRandomBlock() {
+        Random rand = new Random();
+        int type = rand.nextInt(8); // Random friom 0 to 6 (7 shapes)
+        int startX = 4; // Luôn thả ở giữa màn hình (cột 4)
+        int startY = 1; // Luôn thả từ trên đỉnh (hàng 1)
+
+        Block newBlock = null;
+
+        switch (type) {
+            case 0: 
+                newBlock = new T_block(startX, startY); 
+                break;
+            case 1: 
+                newBlock = new L_block(startX, startY); 
+                break;
+            case 2: 
+                newBlock = new Square_2x2(startX, startY); 
+                break;
+            case 3:
+                newBlock = new S_block(startX, startY);
+                break;
+            case 4:
+                newBlock = new Z_block(startX, startY);
+                break;
+            case 5:
+                newBlock = new J_block(startX, startY);
+                break;
+            case 6:
+                newBlock = new I_block(startX, startY);
+                break;
+            case 7:
+                newBlock = new Square_1x1(startX, startY);
+                break;
+        }
+
+        // Đẩy viên gạch mới này vào danh sách để nó bắt đầu rơi
+        BlocksInTheGrid.add(newBlock);
+    }
+
     public Grid_(){
         reset();
     }
@@ -49,7 +88,10 @@ public class Grid_ {
             grid = b.SetOnesInGrid(grid, b.status);
         }
 
-        if (needToCheckLines) checkandClearLines();
+        if (needToCheckLines){
+            checkandClearLines();
+            spawnRandomBlock();
+        }
 
         if(timer==fallSpeed)timer = 0;
     }
