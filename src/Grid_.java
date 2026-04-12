@@ -30,7 +30,10 @@ public class Grid_ {
         for(Block b : BlocksInTheGrid){
             if(timer == 30 && b.status){
                 if(grid[b.LowestPoint+1][b.x] == -1 || grid[b.LowestPoint+1][b.x] == 1)b.status = false;
-                else b.y++;
+                else {
+                    b.y++;
+                    b.LowestPoint++;
+                }
             }
             grid = b.SetOnesInGrid(grid, b.status);
         }
