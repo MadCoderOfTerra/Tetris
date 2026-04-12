@@ -33,6 +33,7 @@ public class Grid_ {
                 else {
                     b.y++;
                     b.LowestPoint++;
+                    b.update();
                 }
             }
             grid = b.SetOnesInGrid(grid, b.status);

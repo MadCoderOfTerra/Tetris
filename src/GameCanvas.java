@@ -4,7 +4,7 @@ import java.awt.*;
 public class GameCanvas extends JPanel implements Runnable{
     public int Width = 800;
     public int Height = 800;
-    public int Fps = 144;
+    public int Fps = 60;
 
     Grid_ gridd = new Grid_();
     Thread gameThread; // this thing is used to run the gameloop
@@ -20,6 +20,8 @@ public class GameCanvas extends JPanel implements Runnable{
         gridd.BlocksInTheGrid.add(new Square_1x1(2,3));
 
         gridd.BlocksInTheGrid.add(new I_Piece(5,5));
+
+        gridd.BlocksInTheGrid.get(1).Orientation = 2;
 
 
     }

@@ -6,6 +6,9 @@ public class Square_1x1 extends Block{
     }
 
     @Override
+    public void update(){};
+
+    @Override
     public int[][] SetOnesInGrid(int[][] grid, boolean status) {
         grid[y][x] = 2;
         if(!status) grid[y][x] = 1;
