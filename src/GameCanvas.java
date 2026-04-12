@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.Objects;
 
 public class GameCanvas extends JPanel implements Runnable{
@@ -16,6 +17,44 @@ public class GameCanvas extends JPanel implements Runnable{
         this.setBackground(Color.black);
         this.setLayout(null);  //Stop java from forcefeeding me with its default layouts, forcing it to use my layout
 
+        this.setFocusable(true); //Make the canvas focusable so it can receive key events
+        this.addKeyListener(new KeyAdapter() { //Add a key listener to the canvas to listen for key events
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                for (Block b : gridd.BlocksInTheGrid) {
+                    if (b.status) {//Control block dropping
+                        
+                        // 1. XOAY: Mũi tên LÊN hoặc phím W
+                        if (e.getKeyCode()  == KeyEvent.VK_UP || e.getKeyCode()  == KeyEvent.VK_W) {
+                            b.rotate(gridd.grid);
+                        }
+                        
+                        // 2. SANG TRÁI: Mũi tên TRÁI hoặc phím A
+                        else if (e.getKeyCode()  == KeyEvent.VK_LEFT || e.getKeyCode()  == KeyEvent.VK_A) {
+                            b.x--; // Thử dịch sang trái 1 ô
+                            // Nếu kẹt tường hoặc đụng gạch khác thì lùi lại vị trí cũ
+                            if (!b.isValidPosition(gridd.grid)) b.x++; 
+                        }
+                        
+                        // 3. SANG PHẢI: Mũi tên PHẢI hoặc phím D
+                        else if (e.getKeyCode()  == KeyEvent.VK_RIGHT || e.getKeyCode()  == KeyEvent.VK_D) {
+                            b.x++; // Thử dịch sang phải 1 ô
+                            if (!b.isValidPosition(gridd.grid)) b.x--;
+                        }
+                        
+                        // 4. RƠI NHANH (Soft Drop): Mũi tên XUỐNG hoặc phím S
+                        else if (e.getKeyCode()  == KeyEvent.VK_DOWN || e.getKeyCode()  == KeyEvent.VK_S) {
+                            b.y++; // Thử rơi xuống 1 ô
+                            if (!b.isValidPosition(gridd.grid)) b.y--;
+                        }
+                        
+                        break; 
+                    }
+                }
+                repaint(); // Cập nhật lại hình ảnh ngay lập tức sau khi bấm
+            }
+        });
 
 
         //gridd.BlocksInTheGrid.add(new Square_1x1(3,1));
