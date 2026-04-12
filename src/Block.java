@@ -13,3 +13,4 @@ public abstract class Block implements SetOnesInGrid_{
 interface SetOnesInGrid_ {
     public int[][] SetOnesInGrid(int[][] grid, boolean status);
 };
+
