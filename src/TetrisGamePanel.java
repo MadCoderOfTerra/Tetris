@@ -1,6 +1,7 @@
 package MAIN;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicComboBoxUI;
 import java.awt.*;
 
 public class TetrisGamePanel extends JPanel implements Runnable {
@@ -16,7 +17,7 @@ public class TetrisGamePanel extends JPanel implements Runnable {
         this.setBackground(Color.black);
         this.setLayout(null);
         //IMPLEMENT KEYLISTENER
-        this.addKeyListener(new KeyHandler());
+        this.addKeyListener(new BasicComboBoxUI.KeyHandler());
         this.setFocusable(true);
 
 
