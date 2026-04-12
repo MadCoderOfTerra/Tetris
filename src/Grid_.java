@@ -24,12 +24,12 @@ public class Grid_ {
     public void update(){
         reset();
 
-        Collections.sort(BlocksInTheGrid, (a, b) -> b.y - a.y); //Prevent top cube from phasing onto the lowest cube
+        Collections.sort(BlocksInTheGrid, (a, b) -> b.y - a.y); //Prevent top cube from phasing onto the lowest cube by sorting and processing the lowest cube first
 
         timer++;
         for(Block b : BlocksInTheGrid){
             if(timer == 30 && b.status){
-                if(grid[b.y+1][b.x] == -1 || grid[b.y+1][b.x] == 1)b.status = false;
+                if(grid[b.LowestPoint+1][b.x] == -1 || grid[b.LowestPoint+1][b.x] == 1)b.status = false;
                 else b.y++;
             }
             grid = b.SetOnesInGrid(grid, b.status);

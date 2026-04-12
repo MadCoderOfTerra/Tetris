@@ -1,11 +1,9 @@
 public class Square_1x1 extends Block{
 
     public Square_1x1(int x, int y){
-        this.x = x;
-        this.y = y;
+        super(x,y);
+        LowestPoint = y;
     }
-
-    public boolean status = true; //true is falling false is stopped
 
     @Override
     public int[][] SetOnesInGrid(int[][] grid, boolean status) {

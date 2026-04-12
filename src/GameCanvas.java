@@ -16,8 +16,11 @@ public class GameCanvas extends JPanel implements Runnable{
 
 
 
-        gridd.BlocksInTheGrid.add(new Square_1x1(5,2));
-        gridd.BlocksInTheGrid.add(new Square_1x1(5,3));
+        //gridd.BlocksInTheGrid.add(new Square_1x1(5,2));
+        gridd.BlocksInTheGrid.add(new Square_1x1(2,3));
+
+        gridd.BlocksInTheGrid.add(new I_Piece(5,5));
+
 
     }
 
@@ -27,7 +30,7 @@ public class GameCanvas extends JPanel implements Runnable{
     }
 
     @Override
-    public void run() { //Chổ này là game loop
+    public void run() { //This is the game loop don't touch it pls
         double fps = 1000000000/Fps;
         double delta = 0;
         long lastTime = System.nanoTime();
