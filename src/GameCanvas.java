@@ -62,6 +62,7 @@ public class GameCanvas extends JPanel implements Runnable{
         im.put(KeyStroke.getKeyStroke("LEFT"), "left");
         im.put(KeyStroke.getKeyStroke("UP"), "up");
         im.put(KeyStroke.getKeyStroke("DOWN"), "down");
+        im.put(KeyStroke.getKeyStroke("SPACE"), "space");
         am.put("right", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 moveBlockRight();
@@ -78,6 +79,11 @@ public class GameCanvas extends JPanel implements Runnable{
             }
         });
         am.put("down", new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                moveBlockDown();
+            }
+        });
+        am.put("space", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 dropBlock();
             }
@@ -97,6 +103,10 @@ public class GameCanvas extends JPanel implements Runnable{
 
     public void moveBlockLeft(){
         if(Grid.Current_Block.checkCollisionLeft(Grid.gridBackground)) Grid.Current_Block.moveLeft();
+        refreshGrid();
+    }
+    public void moveBlockDown(){
+        if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)) Grid.Current_Block.moveDown();
         refreshGrid();
     }
 
