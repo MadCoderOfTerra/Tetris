@@ -14,9 +14,8 @@ public class GameCanvas extends JPanel implements Runnable{
         this.setLayout(null);                                  //Stop java from forcefeeding me with its default layouts, forcing it to use my layout
 
         TetrisBlock b = new L_Piece();
-
         b.x = 2;
-        b.y = 3;
+        b.y = 0;
         Grid.Current_Block = b;
 
     }
@@ -24,15 +23,18 @@ public class GameCanvas extends JPanel implements Runnable{
     @Override
     public void run() { //This is the game loop don't touch it pls
         while(true){
-
+            if(Grid.Current_Block.checkCollisionUnder(Grid.grid))Grid.Current_Block.moveDown();
+            else {
+                Grid.moveToBackground();
+                Grid.spawnBlock();
+            }
             Grid.reset();
-            Grid.Current_Block.moveDown();
-            Grid.Current_Block.Rotate();
             Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
+
             repaint();
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(200);
             } catch (InterruptedException var2) {
                 return;
             }
@@ -46,10 +48,6 @@ public class GameCanvas extends JPanel implements Runnable{
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Grid.Draw(g,Width,Height);
-    }
-
-    public void update(){
-
     }
 
     public void LaunchGame(){ //Obvious brah

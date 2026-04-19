@@ -3,10 +3,10 @@ import java.util.Random;
 
 public abstract class TetrisBlock {
     public int[][] Shape;
-    public int[][][] Shape_Rotation;   //each rotation of
+    public int[][][] Shape_Rotation;
     public int x;
     public int y;
-    public int CurrentOrientation = 0;
+    public int CurrentOrientation;
     public int ColorToChooseID;
     public Color[] ColorToChoose = {Color.red, Color.blue, Color.GREEN};
 
@@ -14,8 +14,10 @@ public abstract class TetrisBlock {
         this.Shape = Shape;
         Random r = new Random();
         ColorToChooseID = r.nextInt(ColorToChoose.length);
+        CurrentOrientation = r.nextInt(4);
         resetColor();
         Find4Rotation();
+        Rotate();
     }
 
     public void Find4Rotation(){
@@ -36,12 +38,6 @@ public abstract class TetrisBlock {
         }
     }
 
-    public void Rotate(){
-        CurrentOrientation++;
-        if(CurrentOrientation==4) CurrentOrientation = 0;
-        Shape = Shape_Rotation[CurrentOrientation];
-    }
-
     public void resetColor(){
         for(int i = 0; i < Shape.length; i++){
             for(int j = 0; j < Shape[0].length; j++){
@@ -55,10 +51,16 @@ public abstract class TetrisBlock {
         int columns = grid[0].length;
         for(int i = y; i < y + Shape.length && i < rows; i++){
             for(int j = x; j < x + Shape[0].length && j < columns; j++){
-                grid[i][j] = Shape[i-y][j-x];
+                if(Shape[i-y][j-x] != -1) grid[i][j] = Shape[i-y][j-x];
             }
         }
         return grid;
+    }
+
+    public void Rotate(){
+        CurrentOrientation++;
+        if(CurrentOrientation==4) CurrentOrientation = 0;
+        Shape = Shape_Rotation[CurrentOrientation];
     }
 
     public void moveDown(){ y++; }
@@ -69,14 +71,33 @@ public abstract class TetrisBlock {
         while(checkCollisionUnder(grid)) y++;
     }
 
-    public void fixBlockInPlace(){
-
-    }
-
     public boolean checkCollisionUnder(int[][] grid){
-        if(grid[x][y+getHeight()+1] != -1) return false;
+        for(int col = 0; col < getWidth(); col++){
+            // find the lowest non-empty cell in this column
+            for(int row = getHeight()-1; row >= 0; row--){
+                if(Shape[row][col] != -1){
+                    int gridRow = y + row + 1;
+                    int gridCol = x + col;
+                    if(gridRow >= grid.length) return false; // hit bottom wall
+                    if(grid[gridRow][gridCol] != -1) return false; // hit another block
+                    break; // found lowest cell in this column, move to next column
+                }
+            }
+        }
         return true;
     }
+
+    /*public boolean checkCollisionUnder(int[][] grid){
+        if(y + getHeight() >= grid.length) return false;
+        for(int col = 0; col < getWidth(); col++){
+            if(Shape[getHeight()-1][col] != -1){
+                if(grid[y + getHeight()][x + col] != -1) return false;
+            }
+        }
+        return true;
+    }
+
+     */
 
     public int getHeight() {return Shape.length;}
     public int getWidth() {return Shape[0].length;}
