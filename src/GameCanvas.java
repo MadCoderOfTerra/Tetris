@@ -1,7 +1,5 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.*;
 import javax.swing.*;
 
 
@@ -26,6 +24,8 @@ public class GameCanvas extends JPanel implements Runnable{
 
     }
 
+    int score = 0;
+
     @Override
     public void run() { //This is the game loop don't touch it pls
         while(true){
@@ -39,6 +39,7 @@ public class GameCanvas extends JPanel implements Runnable{
                 return;
             }
 
+            score += clearRows();
 
         }
     }
@@ -56,8 +57,8 @@ public class GameCanvas extends JPanel implements Runnable{
     }
 
     public void initControls() {
-        InputMap im = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-        ActionMap am = this.getActionMap();
+        InputMap im = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = getActionMap();
         im.put(KeyStroke.getKeyStroke("RIGHT"), "right");
         im.put(KeyStroke.getKeyStroke("LEFT"), "left");
         im.put(KeyStroke.getKeyStroke("UP"), "up");
@@ -122,6 +123,47 @@ public class GameCanvas extends JPanel implements Runnable{
         Grid.moveToBackground();
         Grid.spawnBlock();
         refreshGrid();
+    }
+
+    //-----------------------------------
+    public int clearRows() {
+        int linesCleared = 0;
+
+        for(int row = Grid.Rows - 1; row >= 0; --row) {
+            boolean LineFilled = true;
+
+            for(int c = 0; c < Grid.Columns; ++c) {
+                if (Grid.gridBackground[row][c] == -1) {
+                    LineFilled = false;
+                    break;
+                }
+            }
+
+            if (LineFilled) {
+                linesCleared++;
+                clearLine(row);
+                shiftDown(row);
+                clearLine(0);
+                row++;
+                repaint();
+            }
+        }
+
+        return linesCleared;
+    }
+
+    private void clearLine(int row) {
+        for(int i = 0; i < Grid.Columns; ++i) {
+            Grid.gridBackground[row][i] = -1;
+        }
+    }
+
+    private void shiftDown(int row) {
+        for(; row > 0; --row) {
+            for(int col = 0; col < Grid.Columns; ++col) {
+                Grid.gridBackground[row][col] = Grid.gridBackground[row - 1][col];
+            }
+        }
     }
 
     @Override
