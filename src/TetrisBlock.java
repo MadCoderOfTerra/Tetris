@@ -2,17 +2,20 @@ import java.awt.*;
 import java.util.Random;
 
 public abstract class TetrisBlock {
-    public int x, y;
     public int[][] Shape;
     public int[][][] Shape_Rotation;   //each rotation of
+    public int x;
+    public int y;
     public int CurrentOrientation = 0;
     public int ColorToChooseID;
-
+    public Color[] ColorToChoose = {Color.red, Color.blue, Color.GREEN};
 
     public TetrisBlock(int[][] Shape){
         this.Shape = Shape;
         Random r = new Random();
-        ColorToChooseID = r.nextInt();
+        ColorToChooseID = r.nextInt(ColorToChoose.length);
+        resetColor();
+        Find4Rotation();
     }
 
     public void Find4Rotation(){
@@ -48,7 +51,6 @@ public abstract class TetrisBlock {
     }
 
     public int[][] setBlockInGrid(int[][] grid){
-        resetColor();
         int rows = grid.length;
         int columns = grid[0].length;
         for(int i = y; i < y + Shape.length && i < rows; i++){
@@ -59,7 +61,7 @@ public abstract class TetrisBlock {
         return grid;
     }
 
-    public void moveDown(){ y--; }
+    public void moveDown(){ y++; }
     public void moveRight(){  x++; }
     public void moveLeft(){ x--; }
 
