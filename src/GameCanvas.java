@@ -6,6 +6,7 @@ import javax.swing.*;
 public class GameCanvas extends JPanel implements Runnable{
     public int Width = 800;
     public int Height = 800;
+    public boolean running = true;
 
     Grid_ Grid = new Grid_(Width, Height);
     Thread gameThread;
@@ -15,10 +16,7 @@ public class GameCanvas extends JPanel implements Runnable{
         setBackground(Color.WHITE);
         setLayout(null);                                  //Stop java from forcefeeding me with its default layouts, forcing it to use my layout
 
-        TetrisBlock b = new L_Piece();
-        b.x = 2;
-        b.y = 0;
-        Grid.Current_Block = b;
+        Grid.spawnBlock();
 
 
 
@@ -28,8 +26,7 @@ public class GameCanvas extends JPanel implements Runnable{
 
     @Override
     public void run() { //This is the game loop don't touch it pls
-        while(true){
-
+        while(running){
             update();
             repaint();
 
@@ -51,9 +48,29 @@ public class GameCanvas extends JPanel implements Runnable{
             Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
             Grid.moveToBackground();
             Grid.spawnBlock();
-
+            if(!checkSpawn(Grid.gridBackground)){
+                for(int i=0;i<Grid.Rows;i++){
+                    for(int j=0;j<Grid.Columns;j++){
+                        Grid.grid[i][j] = -1;
+                        Grid.gridBackground[i][j] = -1;
+                    }
+                }
+                running = false;
+            }
         }
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
+
+    }
+
+    public boolean checkSpawn(int[][] grid){
+        int y = Grid.Current_Block.y;
+        int x = Grid.Current_Block.x;
+        for(int row = y; row < y + Grid.Current_Block.getHeight(); row++){
+            for(int col = x; col < x + Grid.Current_Block.getWidth(); col++){
+                if(grid[row][col] != -1 && Grid.Current_Block.Shape[row-y][col-x] != -1) return false;
+            }
+        }
+        return true;
     }
 
     public void initControls() {
