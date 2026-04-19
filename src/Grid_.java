@@ -29,7 +29,6 @@ public class Grid_ {
 
         x = GameCanvasWidth/2 - CellSize * (Columns/2);
         y = GameCanvasHeight/2 - CellSize * (Rows/2);
-
     }
 
     public void reset(){
@@ -46,7 +45,6 @@ public class Grid_ {
                 if(grid[i][j] != -1) gridBackground[i][j] = grid[i][j];
             }
         }
-
     }
 
     public void spawnBlock(){
@@ -60,7 +58,7 @@ public class Grid_ {
         if(type==5)Current_Block = new Square_Piece();
         if(type==6)Current_Block = new I_Piece();
 
-        Current_Block.x = Columns/2;
+        Current_Block.x = Columns/2-1;
         Current_Block.y = 0;
     }
 
