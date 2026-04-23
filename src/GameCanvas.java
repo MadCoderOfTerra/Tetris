@@ -1,12 +1,19 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
+import static java.lang.Integer.MAX_VALUE;
 
-
-public class GameCanvas extends JPanel implements Runnable{
+public class GameCanvas extends JPanel implements Runnable {
     public int Width = 800;
     public int Height = 800;
+    public int gameSpeed = 500;
+    public boolean paused = false;
     public boolean running = true;
+    public boolean gameOver = false;
+
+    public JLabel gameOverLabel = new JLabel("GAME OVER", SwingConstants.CENTER);
+    public JLabel ScoreLabel = new JLabel("", SwingConstants.CENTER);
+    public JButton pauseBt = new JButton("Pause");
 
     Grid_ Grid = new Grid_(Width, Height);
     Thread gameThread;
@@ -14,12 +21,35 @@ public class GameCanvas extends JPanel implements Runnable{
     public GameCanvas() {
         setPreferredSize(new Dimension(Width,Height));    //force the size of the canvas to be this size (basically prevent the title from taking some pixels)
         setBackground(Color.WHITE);
-        setLayout(null);                                  //Stop java from forcefeeding me with its default layouts, forcing it to use my layout
+        setLayout(null);                                  //if this is not here then .setbounds() is useless
+        setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+
+
+        gameOverLabel.setBounds(400-100,0,200,200);
+        gameOverLabel.setFont(new Font("Times new Roman", Font.BOLD, 30));
+
+        ScoreLabel.setBounds(550,100,100,100);
+        ScoreLabel.setFont(new Font("Times new Roman", Font.BOLD, 20));
+
+        pauseBt.setBounds(650,130,100,30);
+        pauseBt.addActionListener(e -> {
+            if(!paused){
+                paused = true;
+                pauseBt.setText("Resume");
+            } else {
+                paused = false;
+                pauseBt.setText("Pause");
+            }
+        });
+        pauseBt.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "none");
+
+
+
+        this.add(ScoreLabel);
+        this.add(pauseBt);
 
         Grid.spawnBlock();
-
-
-
     }
 
     int score = 0;
@@ -31,12 +61,15 @@ public class GameCanvas extends JPanel implements Runnable{
             repaint();
 
             try {
-                Thread.sleep(500);
+                Thread.sleep(gameSpeed);
+                while(paused){
+                    Thread.sleep(1);
+                };
             } catch (InterruptedException var2) {
                 return;
             }
-
             score += clearRows();
+            ScoreLabel.setText("Score: " + String.valueOf(score));
 
         }
     }
@@ -49,17 +82,12 @@ public class GameCanvas extends JPanel implements Runnable{
             Grid.moveToBackground();
             Grid.spawnBlock();
             if(!checkSpawn(Grid.gridBackground)){
-                for(int i=0;i<Grid.Rows;i++){
-                    for(int j=0;j<Grid.Columns;j++){
-                        Grid.grid[i][j] = -1;
-                        Grid.gridBackground[i][j] = -1;
-                    }
-                }
                 running = false;
+                this.add(gameOverLabel); //add this label to gameCanvas
+                gameOver = true;
             }
         }
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
-
     }
 
     public boolean checkSpawn(int[][] grid){
@@ -115,25 +143,30 @@ public class GameCanvas extends JPanel implements Runnable{
     }
 
     public void moveBlockRight(){
+        if(!running || paused) return;
         if(Grid.Current_Block.checkCollisionRight(Grid.gridBackground)) Grid.Current_Block.moveRight();
         refreshGrid();
     }
 
     public void moveBlockLeft(){
+        if(!running || paused) return;
         if(Grid.Current_Block.checkCollisionLeft(Grid.gridBackground)) Grid.Current_Block.moveLeft();
         refreshGrid();
     }
     public void moveBlockDown(){
+        if(!running || paused) return;
         if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)) Grid.Current_Block.moveDown();
         refreshGrid();
     }
 
     public void rotateBlock(){
+        if(!running || paused) return;
         if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)) Grid.Current_Block.Rotate();
         refreshGrid();
     }
 
     public void dropBlock(){
+        if(!running || paused) return;
         Grid.reset();
         Grid.Current_Block.dropDown(Grid.gridBackground);
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
@@ -142,7 +175,6 @@ public class GameCanvas extends JPanel implements Runnable{
         refreshGrid();
     }
 
-    //-----------------------------------
     public int clearRows() {
         int linesCleared = 0;
 
