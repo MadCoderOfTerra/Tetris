@@ -8,7 +8,7 @@ public abstract class TetrisBlock {
     public int y;
     public int CurrentOrientation;
     public int ColorToChooseID;
-    public Color[] ColorToChoose = {Color.red, Color.blue, Color.GREEN};
+    public Color[] ColorToChoose = {Color.red, Color.blue, Color.yellow};
 
     public TetrisBlock(int[][] Shape){
         this.Shape = Shape;
