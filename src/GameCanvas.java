@@ -12,7 +12,7 @@ public class GameCanvas extends JPanel implements Runnable {
     public boolean gameOver = false;
 
     public JLabel gameOverLabel = new JLabel("GAME OVER", SwingConstants.CENTER);
-    public JLabel ScoreLabel = new JLabel("", SwingConstants.CENTER);
+    public JLabel ScoreLabel = new JLabel("Score: 0", SwingConstants.CENTER);
     public JButton pauseBt = new JButton("Pause");
 
     Grid_ Grid = new Grid_(Width, Height);
@@ -178,11 +178,11 @@ public class GameCanvas extends JPanel implements Runnable {
     public int clearRows() {
         int linesCleared = 0;
 
-        for(int row = Grid.Rows - 1; row >= 0; --row) {
+        for(int row = Grid.Rows - 1; row >= 0; row--) {
             boolean LineFilled = true;
 
-            for(int c = 0; c < Grid.Columns; ++c) {
-                if (Grid.gridBackground[row][c] == -1) {
+            for(int col = 0; col < Grid.Columns; col++) {
+                if (Grid.gridBackground[row][col] == -1) {
                     LineFilled = false;
                     break;
                 }
