@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
-import static java.lang.Integer.MAX_VALUE;
 
 public class GameCanvas extends JPanel implements Runnable {
     public int Width = 800;
@@ -202,15 +201,15 @@ public class GameCanvas extends JPanel implements Runnable {
     }
 
     private void clearLine(int row) {
-        for(int i = 0; i < Grid.Columns; ++i) {
+        for(int i = 0; i < Grid.Columns; i++) {
             Grid.gridBackground[row][i] = -1;
         }
     }
 
     private void shiftDown(int row) {
-        for(; row > 0; --row) {
-            for(int col = 0; col < Grid.Columns; ++col) {
-                Grid.gridBackground[row][col] = Grid.gridBackground[row - 1][col];
+        for(; row > 0; row--) {
+            for(int col = 0; col < Grid.Columns; col++) {
+                Grid.gridBackground[row][col] = Grid.gridBackground[row-1][col];
             }
         }
     }
