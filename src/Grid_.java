@@ -12,48 +12,46 @@ public class Grid_ {
     public int fallSpeed = 30;
 
 
+    public boolean isGameOver = false; 
+    public Block nextBlock;
+
     public int[][] grid = new int[22][12];
     public ArrayList<Block> BlocksInTheGrid = new ArrayList<Block>();
 
     int timer = 0;
 
-    public void spawnRandomBlock() {
+    private Block createRandomBlock() {
         Random rand = new Random();
-        int type = rand.nextInt(8); // Random friom 0 to 6 (7 shapes)
-        int startX = 4; // Luôn thả ở giữa màn hình (cột 4)
-        int startY = 1; // Luôn thả từ trên đỉnh (hàng 1)
-
-        Block newBlock = null;
+        int type = rand.nextInt(7); // 7 types of blocks
+        int startX = 4;
+        int startY = 1;
 
         switch (type) {
-            case 0: 
-                newBlock = new T_block(startX, startY); 
-                break;
-            case 1: 
-                newBlock = new L_block(startX, startY); 
-                break;
-            case 2: 
-                newBlock = new Square_2x2(startX, startY); 
-                break;
-            case 3:
-                newBlock = new S_block(startX, startY);
-                break;
-            case 4:
-                newBlock = new Z_block(startX, startY);
-                break;
-            case 5:
-                newBlock = new J_block(startX, startY);
-                break;
-            case 6:
-                newBlock = new I_block(startX, startY);
-                break;
-            case 7:
-                newBlock = new Square_1x1(startX, startY);
-                break;
+            case 0: return new T_block(startX, startY);
+            case 1: return new L_block(startX, startY);
+            case 2: return new Square_2x2(startX, startY);
+            case 3: return new J_block(startX, startY);
+            case 4: return new I_block(startX, startY);
+            case 5: return new S_block(startX, startY);
+            case 6: return new Z_block(startX, startY);
+            default: return new T_block(startX, startY);
+        }
+    }
+
+    public void spawnRandomBlock() {
+        if (nextBlock == null) nextBlock = createRandomBlock();
+
+        Block currentBlock = nextBlock;
+        BlocksInTheGrid.add(currentBlock);
+
+        //Check Game Over status here
+
+        if (!currentBlock.isValidPosition(grid)) {
+            isGameOver =  true;
+            currentBlock.status = false;
         }
 
-        // Đẩy viên gạch mới này vào danh sách để nó bắt đầu rơi
-        BlocksInTheGrid.add(newBlock);
+        nextBlock = createRandomBlock();
     }
 
     public Grid_(){
@@ -70,22 +68,41 @@ public class Grid_ {
     }
 
     public void update(){
-        reset();
+        if (isGameOver) return;
 
-        Collections.sort(BlocksInTheGrid, (a, b) -> b.y - a.y); //Prevent top cube from phasing onto the lowest cube
+        // 1. Remove dropping block shadow and keep block 1
+        for(int i=1; i<=20; i++) {
+            for(int j=1; j<=10; j++) {
+                if(grid[i][j] == 2) grid[i][j] = 0;
+            }
+        }
 
         timer++;
         boolean needToCheckLines = false;
 
-        for(Block b : BlocksInTheGrid){
+        // 2. Use Iterator to check and remove
+        Iterator<Block> iterator = BlocksInTheGrid.iterator();
+        while(iterator.hasNext()){
+            Block b = iterator.next();
+            
             if(timer >= fallSpeed && b.status){
                 if(!b.canMoveDown(grid)){
                     b.status = false;
                     needToCheckLines = true;
+                    
+                    // Print and set constant location for block 
+                    b.SetOnesInGrid(grid, false); 
+                    
+                    // Remove object because of cleared row
+                    iterator.remove(); 
                 }
                 else b.y++;
             }
-            grid = b.SetOnesInGrid(grid, b.status);
+            
+            // Draw block 2
+            if (b.status) {
+                b.SetOnesInGrid(grid, true);
+            }
         }
 
         if (needToCheckLines){
@@ -103,7 +120,7 @@ public class Grid_ {
             case 3: score += 500 * level; break;
             case 4: score += 800 * level; break;
         }
-        System.out.println("Score: " + score); // Tạm in ra console để test
+        System.out.println("Score: " + score); // Print in console
     }
 
     public void checkLevelUp(int lines) {
@@ -132,17 +149,18 @@ public class Grid_ {
             if (rowisFull) {
                 linesClearedThisTurn++;
 
-                Iterator<Block> iterator = BlocksInTheGrid.iterator();
-            
-                while (iterator.hasNext()) {
-                    Block b = iterator.next();
+                for (int r = i; r > 1; r--) {
+                    for (int c = 1; c <= 10; c++) {
+                        grid[r][c] = grid[r-1][c];
+                    }
+                }
+                
+                // Clear up row
+                for (int c = 1; c <= 10; c++) {
+                    grid[1][c] = 0;
+                }
 
-                    if (b.y == i) iterator.remove();
-
-                    else if (b.y < i) b.y++;
-                }    
-            
-                i++;
+                i++; 
             }
         }
 
@@ -173,6 +191,24 @@ public class Grid_ {
     
         g.drawString("Score: " + score, 50, 50);
         g.drawString("Level: " + level, 50, 80);
-        g.drawString("Lines: " + linesCleared, 50, 110);    
+        g.drawString("Lines: " + linesCleared, 50, 110);
+
+
+        // GAME OVER SCREEN
+        if (isGameOver) {
+            
+            g.setColor(new Color(0, 0, 0, 150)); 
+            g.fillRect(0, 0, w, h);
+
+            // Draw GAME OVER
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 60));
+            g.drawString("GAME OVER", w/2 - 170, h/2);
+
+            // LAST POINT
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Arial", Font.BOLD, 30));
+            g.drawString("Final Score: " + score, w/2 - 100, h/2 + 50);
+        }    
     }
 }
