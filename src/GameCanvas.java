@@ -1,3 +1,8 @@
+import java.io.File;
+import java.io.IOException;
+import java.util.prefs.Preferences;
+
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
@@ -8,18 +13,30 @@ public class GameCanvas extends JPanel implements Runnable{
     public int Height = 800;
     public boolean running = true;
 
+    private Image backgroundImage;
+
     Grid_ Grid = new Grid_(Width, Height);
     Thread gameThread;
 
     public GameCanvas() {
-        setPreferredSize(new Dimension(Width,Height));    //force the size of the canvas to be this size (basically prevent the title from taking some pixels)
-        setBackground(Color.WHITE);
-        setLayout(null);                                  //Stop java from forcefeeding me with its default layouts, forcing it to use my layout
+        setPreferredSize(new Dimension(Width,Height));
+        setLayout(null); 
+        
+        // 1. ADD THIS LINE so the canvas is allowed to detect key presses!
+        setFocusable(true); 
+
+        // Load the background image
+        try {
+            backgroundImage = ImageIO.read(new File("../materials/download.jpg")); 
+        } catch (IOException e) {
+            System.out.println("Could not load background image!");
+            e.printStackTrace();
+        }
+
+        // 2. MAKE SURE THIS IS HERE so your keys actually bind!
+        initControls(); 
 
         Grid.spawnBlock();
-
-
-
     }
 
     int score = 0;
@@ -41,25 +58,44 @@ public class GameCanvas extends JPanel implements Runnable{
         }
     }
 
+    private void gameOver() {
+        running = false; // Stop the game loop thread
+                
+        // Save the high score
+        Preferences prefs = Preferences.userNodeForPackage(GameCanvas.class);
+        int currentHigh = prefs.getInt("HighScore", 0);
+        if(score > currentHigh) prefs.putInt("HighScore", score);
+        
+        // Safely switch back to the UI thread to show the message and change screens
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(this, "Game Over! Your score: " + score);
+            
+            // Tell the parent container (MainApp's mainContainer) to show the Menu
+            Container parent = getParent();
+            if (parent != null && parent.getLayout() instanceof CardLayout) {
+                CardLayout cl = (CardLayout) parent.getLayout();
+                cl.show(parent, "Menu");
+            }
+        });
+    }
+
     public void update(){
+        if (!running) return; // Prevent updates if game is already over
+
         Grid.reset();
-        if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground))Grid.Current_Block.moveDown();
-        else {
+        if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)){
+            Grid.Current_Block.moveDown();
+        } else {
             Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
             Grid.moveToBackground();
             Grid.spawnBlock();
+            
             if(!checkSpawn(Grid.gridBackground)){
-                for(int i=0;i<Grid.Rows;i++){
-                    for(int j=0;j<Grid.Columns;j++){
-                        Grid.grid[i][j] = -1;
-                        Grid.gridBackground[i][j] = -1;
-                    }
-                }
-                running = false;
+                gameOver();
+                return; // <--- THIS PREVENTS THE GLITCH! Stops drawing the new block.
             }
         }
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
-
     }
 
     public boolean checkSpawn(int[][] grid){
@@ -81,6 +117,7 @@ public class GameCanvas extends JPanel implements Runnable{
         im.put(KeyStroke.getKeyStroke("UP"), "up");
         im.put(KeyStroke.getKeyStroke("DOWN"), "down");
         im.put(KeyStroke.getKeyStroke("SPACE"), "space");
+        im.put(KeyStroke.getKeyStroke("C"), "hold");
         am.put("right", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 moveBlockRight();
@@ -105,6 +142,11 @@ public class GameCanvas extends JPanel implements Runnable{
             public void actionPerformed(ActionEvent e) {
                 dropBlock();
             }
+        });
+        am.put("hold", new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            triggerHold();
+        }
         });
     }
 
@@ -134,11 +176,19 @@ public class GameCanvas extends JPanel implements Runnable{
     }
 
     public void dropBlock(){
+        if (!running) return; // Prevent input if game is over
+
         Grid.reset();
         Grid.Current_Block.dropDown(Grid.gridBackground);
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
         Grid.moveToBackground();
         Grid.spawnBlock();
+        
+        if(!checkSpawn(Grid.gridBackground)){
+            gameOver();
+            return; // Stops here, preventing the glitch!
+        }
+        
         refreshGrid();
     }
 
@@ -183,14 +233,101 @@ public class GameCanvas extends JPanel implements Runnable{
         }
     }
 
+    public void drawHUD(Graphics g) {
+        g.setColor(Color.WHITE); 
+        g.setFont(new Font("Monospaced", Font.BOLD, 24));
+
+        // --- RIGHT SIDE: Score & Next Block ---
+        int rightSideX = Grid.x + (Grid.Columns * Grid.CellSize) + 50; 
+
+        g.drawString("SCORE: " + score, rightSideX, 100);
+        
+        g.drawString("NEXT", rightSideX, 200);
+        
+        // 1. Fill the NEXT box with a dark background so it's not hidden
+        g.setColor(new Color(0, 0, 0, 180)); // Semi-transparent black
+        g.fillRect(rightSideX, 220, 120, 120); 
+        // 2. Draw the white border on top
+        g.setColor(Color.WHITE); 
+        g.drawRect(rightSideX, 220, 120, 120); 
+        
+        drawBlockPreview(g, Grid.Next_Block, rightSideX + 20, 240); // Draw next block
+
+        // --- LEFT SIDE: Hold Block ---
+        int leftSideX = Grid.x - 170; 
+
+        g.drawString("HOLD", leftSideX, 200);
+        
+        // 1. Fill the HOLD box with a dark background
+        g.setColor(new Color(0, 0, 0, 180));
+        g.fillRect(leftSideX, 220, 120, 120); 
+        // 2. Draw the white border on top
+        g.setColor(Color.WHITE);
+        g.drawRect(leftSideX, 220, 120, 120); 
+        
+        if (Grid.Hold_Block != null) {
+            drawBlockPreview(g, Grid.Hold_Block, leftSideX + 20, 240); // Draw hold block
+        }
+    }
+
+    public void drawBlockPreview(Graphics g, TetrisBlock block, int startX, int startY) {
+        if (block == null) return;
+        
+        // Use a slightly smaller cell size (20 instead of 25) just for the UI so blocks fit inside the 120x120 box
+        int previewSize = 20; 
+        
+        for (int r = 0; r < block.Shape.length; r++) {
+            for (int c = 0; c < block.Shape[0].length; c++) {
+                if (block.Shape[r][c] != -1) {
+                    // Safe color check
+                    int colorIndex = block.Shape[r][c];
+                    if(colorIndex < 0 || colorIndex >= Grid.ColorToChoose.length) {
+                        colorIndex = 0;
+                    }
+                    
+                    g.setColor(Grid.ColorToChoose[colorIndex]);
+                    g.fillRect(startX + (c * previewSize), startY + (r * previewSize), previewSize, previewSize);
+                    
+                    g.setColor(Color.WHITE); // White border for the preview blocks
+                    g.drawRect(startX + (c * previewSize), startY + (r * previewSize), previewSize, previewSize);
+                }
+            }
+        }
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Grid.Draw(g,Width,Height);
+        super.paintComponent(g); 
+        
+        if (backgroundImage != null) {
+            g.drawImage(backgroundImage, 0, 0, Width, Height, this);
+        }
+        
+        // Draw the main game grid
+        Grid.Draw(g, Width, Height);
+        
+        // Draw the UI over it
+        drawHUD(g); 
     }
 
     public void LaunchGame(){
         gameThread = new Thread(this);
         gameThread.start();
+    }
+
+    public void triggerHold() {
+        Grid.reset();
+        Grid.holdPiece();
+        Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
+        repaint();
+    }
+
+    public void resetGame() {
+        // Create a brand new grid to wipe away all old blocks and background pieces
+        Grid = new Grid_(Width, Height); 
+        score = 0;
+        running = true; // Re-enable the game loop
+        Grid.spawnBlock();
+        repaint();
     }
 }

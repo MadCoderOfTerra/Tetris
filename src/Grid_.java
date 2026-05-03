@@ -14,6 +14,10 @@ public class Grid_ {
     public int CellSize;
     public Color[] ColorToChoose = {Color.red, Color.blue, Color.GREEN};
 
+    public TetrisBlock Next_Block;
+    public TetrisBlock Hold_Block = null;
+    public boolean canHold = true;
+
 
     public Grid_(int GameCanvasWidth, int GameCanvasHeight){
         Columns = grid[0].length;
@@ -29,6 +33,42 @@ public class Grid_ {
 
         x = GameCanvasWidth/2 - CellSize * (Columns/2);
         y = GameCanvasHeight/2 - CellSize * (Rows/2);
+        
+        // Generate the first Next block right away
+        Next_Block = generateRandomBlock(); 
+    }
+
+    private TetrisBlock generateRandomBlock() {
+        Random r = new Random();
+        int type = r.nextInt(7);
+        if(type==0) return new L_Piece();
+        if(type==1) return new Rev_L_Piece();
+        if(type==2) return new Z_Piece();
+        if(type==3) return new S_Piece();
+        if(type==4) return new T_Piece();
+        if(type==5) return new Square_Piece();
+        return new I_Piece();
+    }
+
+    public void holdPiece() {
+        if (!canHold) return; // Only allow one hold per piece drop
+
+        if (Hold_Block == null) {
+            // First time holding: put current in hold, spawn next
+            Hold_Block = Current_Block;
+            spawnBlock();
+        } else {
+            // Swap current and hold
+            TetrisBlock temp = Current_Block;
+            Current_Block = Hold_Block;
+            
+            // Reset the swapped block's position
+            Current_Block.x = Columns/2-1;
+            Current_Block.y = 0;
+            
+            Hold_Block = temp;
+        }
+        canHold = false; // Lock holding until the block is placed
     }
 
     public void reset(){
@@ -48,18 +88,12 @@ public class Grid_ {
     }
 
     public void spawnBlock(){
-        Random r = new Random();
-        int type = r.nextInt(7);
-        if(type==0)Current_Block = new L_Piece();
-        if(type==1)Current_Block = new Rev_L_Piece();
-        if(type==2)Current_Block = new Z_Piece();
-        if(type==3)Current_Block = new S_Piece();
-        if(type==4)Current_Block = new T_Piece();
-        if(type==5)Current_Block = new Square_Piece();
-        if(type==6)Current_Block = new I_Piece();
-
+        Current_Block = Next_Block; // Take the next block
         Current_Block.x = Columns/2-1;
         Current_Block.y = 0;
+        
+        Next_Block = generateRandomBlock(); // Generate a new one for the queue
+        canHold = true; // Reset the player's ability to hold for this turn
     }
 
 
