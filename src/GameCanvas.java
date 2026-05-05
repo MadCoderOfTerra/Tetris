@@ -1,104 +1,138 @@
-import java.io.File;
-import java.io.IOException;
 import java.util.prefs.Preferences;
-
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
 
-
-public class GameCanvas extends JPanel implements Runnable{
-    public int Width = 800;
-    public int Height = 800;
+public class GameCanvas extends JPanel implements Runnable {
+    public int Width;
+    public int Height;
     public boolean running = true;
-
-    private Image backgroundImage;
-
-    Grid_ Grid = new Grid_(Width, Height);
+    public boolean isPaused = false;
+    public boolean isGameOver = false; 
+    Grid_ Grid;
     Thread gameThread;
-
     public GameCanvas() {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Width = (int) screenSize.getWidth();
+        Height = (int) screenSize.getHeight();
+        Grid = new Grid_(Width, Height);
         setPreferredSize(new Dimension(Width,Height));
         setLayout(null); 
-        
-        // 1. ADD THIS LINE so the canvas is allowed to detect key presses!
-        setFocusable(true); 
-
-        // Load the background image
-        try {
-            backgroundImage = ImageIO.read(new File("../materials/download.jpg")); 
-        } catch (IOException e) {
-            System.out.println("Could not load background image!");
-            e.printStackTrace();
-        }
-
-        // 2. MAKE SURE THIS IS HERE so your keys actually bind!
-        initControls(); 
-
+        setFocusable(true);
+        initControls();
         Grid.spawnBlock();
     }
-
-    int score = 0;
-
-    @Override
-    public void run() { //This is the game loop don't touch it pls
-        while(running){
-            update();
-            repaint();
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException var2) {
-                return;
+    public void drawGhostPiece(Graphics g) {
+        if (Grid.Current_Block == null) return;
+        int originalY = Grid.Current_Block.y;
+        while(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)) {
+            Grid.Current_Block.y++;
+        }
+        int ghostY = Grid.Current_Block.y;
+        for(int r = 0; r < Grid.Current_Block.getHeight(); r++){
+            for(int c = 0; c < Grid.Current_Block.getWidth(); c++){
+                if(Grid.Current_Block.Shape[r][c] != -1){
+                    int drawX = Grid.x + ((Grid.Current_Block.x + c) * Grid.CellSize);
+                    int drawY = Grid.y + ((ghostY + r) * Grid.CellSize);
+                    int colorIndex = Grid.Current_Block.Shape[r][c];
+                    Color baseColor = Grid.ColorToChoose[colorIndex];
+                    g.setColor(new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 80));
+                    g.fillRect(drawX, drawY, Grid.CellSize, Grid.CellSize);
+                    g.setColor(new Color(255, 255, 255, 150));
+                    g.drawRect(drawX, drawY, Grid.CellSize, Grid.CellSize);
+                }
             }
-
-            score += clearRows();
-
+        }
+        Grid.Current_Block.y = originalY;
+    }
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.setColor(new Color(25, 25, 25));
+        g.fillRect(0, 0, Width, Height);
+        Grid.Draw(g, Width, Height);
+        drawGhostPiece(g); 
+        drawHUD(g); 
+        g.setColor(Color.LIGHT_GRAY);
+        int controlFont = (int)(Grid.CellSize * 0.6);
+        g.setFont(new Font("Monospaced", Font.PLAIN, controlFont));
+        int textY = Height - (Grid.CellSize * 5);
+        g.drawString("CONTROLS:", 20, textY);
+        g.drawString("← / →  : Move", 20, textY + controlFont * 2);
+        g.drawString("↑      : Rotate", 20, textY + controlFont * 3);
+        g.drawString("↓      : Soft Drop", 20, textY + controlFont * 4);
+        g.drawString("SPACE  : Hard Drop", 20, textY + controlFont * 5);
+        g.drawString("C      : Hold", 20, textY + controlFont * 6);
+        if (isGameOver) {
+            g.setColor(new Color(150, 0, 0, 180)); 
+            g.fillRect(0, 0, Width, Height);
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Monospaced", Font.BOLD, Grid.CellSize * 2));
+            g.drawString("GAME OVER", (Width / 2) - (Grid.CellSize * 4), Height / 2 - Grid.CellSize);
+            g.setColor(Color.YELLOW);
+            g.setFont(new Font("Monospaced", Font.BOLD, (int)(Grid.CellSize * 1.5)));
+            g.drawString("FINAL SCORE: " + score, (Width / 2) - (Grid.CellSize * 5), Height / 2 + (Grid.CellSize));
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Monospaced", Font.PLAIN, (int)(Grid.CellSize * 0.8)));
+            g.drawString("Press [Q] to Quit to Menu", (Width / 2) - (Grid.CellSize * 5), Height / 2 + Grid.CellSize * 3);
+        } else if (isPaused) {
+            g.setColor(new Color(0, 0, 0, 180)); 
+            g.fillRect(0, 0, Width, Height);
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Monospaced", Font.BOLD, Grid.CellSize * 2));
+            g.drawString("PAUSED", (Width / 2) - (Grid.CellSize * 3), Height / 2 - Grid.CellSize);
+            g.setFont(new Font("Monospaced", Font.PLAIN, (int)(Grid.CellSize * 0.8)));
+            g.drawString("Press [P] or [ESC] to Continue", (Width / 2) - (Grid.CellSize * 6), Height / 2 + Grid.CellSize);
+            g.drawString("Press [Q] to Quit to Menu", (Width / 2) - (Grid.CellSize * 5), Height / 2 + Grid.CellSize * 2);
         }
     }
-
+    public void LaunchGame(){
+        gameThread = new Thread(this);
+        gameThread.start();
+    }
+    int score = 0;
+    @Override
+    public void run() {
+        while(running){
+            if (!isPaused && !isGameOver) {
+                update();
+            }
+            repaint();
+            try { Thread.sleep(500); } catch (InterruptedException var2) { return; }
+            if (!isPaused && !isGameOver) {
+                score += clearRows();
+            }
+        }
+    }
     private void gameOver() {
-        running = false; // Stop the game loop thread
-                
-        // Save the high score
+        running = false;
+        isGameOver = true; 
         Preferences prefs = Preferences.userNodeForPackage(GameCanvas.class);
         int currentHigh = prefs.getInt("HighScore", 0);
         if(score > currentHigh) prefs.putInt("HighScore", score);
-        
-        // Safely switch back to the UI thread to show the message and change screens
-        SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(this, "Game Over! Your score: " + score);
-            
-            // Tell the parent container (MainApp's mainContainer) to show the Menu
-            Container parent = getParent();
-            if (parent != null && parent.getLayout() instanceof CardLayout) {
-                CardLayout cl = (CardLayout) parent.getLayout();
-                cl.show(parent, "Menu");
-            }
-        });
+        Main.gameMusic.stop();
+        Main.gameOverMusic.play();
+        repaint(); 
     }
-
-    public void update(){
-        if (!running) return; // Prevent updates if game is already over
-
+    public void update() {
+        if (!running) return;
         Grid.reset();
         if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)){
             Grid.Current_Block.moveDown();
         } else {
+            Main.blockLandSound.play();
+            
             Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
             Grid.moveToBackground();
             Grid.spawnBlock();
-            
-            if(!checkSpawn(Grid.gridBackground)){
+            if (!checkSpawn(Grid.gridBackground)) {
                 gameOver();
-                return; // <--- THIS PREVENTS THE GLITCH! Stops drawing the new block.
+                return;
             }
         }
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
     }
-
-    public boolean checkSpawn(int[][] grid){
+    public boolean checkSpawn(int[][] grid) {
         int y = Grid.Current_Block.y;
         int x = Grid.Current_Block.x;
         for(int row = y; row < y + Grid.Current_Block.getHeight(); row++){
@@ -108,7 +142,6 @@ public class GameCanvas extends JPanel implements Runnable{
         }
         return true;
     }
-
     public void initControls() {
         InputMap im = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = getActionMap();
@@ -118,49 +151,55 @@ public class GameCanvas extends JPanel implements Runnable{
         im.put(KeyStroke.getKeyStroke("DOWN"), "down");
         im.put(KeyStroke.getKeyStroke("SPACE"), "space");
         im.put(KeyStroke.getKeyStroke("C"), "hold");
-        am.put("right", new AbstractAction() {
+        im.put(KeyStroke.getKeyStroke("P"), "pause");
+        im.put(KeyStroke.getKeyStroke("ESCAPE"), "pause");
+        im.put(KeyStroke.getKeyStroke("Q"), "quit");
+        am.put("pause", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                moveBlockRight();
+                if (running && !isGameOver) {
+                    isPaused = !isPaused;
+                    if (isPaused) {
+                        Main.gameMusic.pause();
+                    } else {
+                        Main.gameMusic.resume();
+                    }
+                    repaint();
+                }
             }
         });
-        am.put("left", new AbstractAction() {
+        am.put("quit", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                moveBlockLeft();
+                if (isPaused || isGameOver) {
+                    Main.menuClickSound.play();
+                    running = false; 
+                    Main.gameMusic.stop();
+                    Main.gameOverMusic.stop();
+                    Main.menuMusic.playLoop();
+                    
+                    Container parent = getParent();
+                    if (parent != null && parent.getLayout() instanceof CardLayout) {
+                        CardLayout cl = (CardLayout) parent.getLayout();
+                        cl.show(parent, "Menu");
+                    }
+                }
             }
         });
-        am.put("up", new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                rotateBlock();
-            }
-        });
-        am.put("down", new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                moveBlockDown();
-            }
-        });
-        am.put("space", new AbstractAction() {
-            public void actionPerformed(ActionEvent e) {
-                dropBlock();
-            }
-        });
-        am.put("hold", new AbstractAction() {
-        public void actionPerformed(ActionEvent e) {
-            triggerHold();
-        }
-        });
+        am.put("right", new AbstractAction() { public void actionPerformed(ActionEvent e) { moveBlockRight(); }});
+        am.put("left", new AbstractAction() { public void actionPerformed(ActionEvent e) { moveBlockLeft(); }});
+        am.put("up", new AbstractAction() { public void actionPerformed(ActionEvent e) { rotateBlock(); }});
+        am.put("down", new AbstractAction() { public void actionPerformed(ActionEvent e) { moveBlockDown(); }});
+        am.put("space", new AbstractAction() { public void actionPerformed(ActionEvent e) { dropBlock(); }});
+        am.put("hold", new AbstractAction() { public void actionPerformed(ActionEvent e) { triggerHold(); }});
     }
-
     public void refreshGrid(){
         Grid.reset();
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
         repaint();
     }
-
     public void moveBlockRight(){
         if(Grid.Current_Block.checkCollisionRight(Grid.gridBackground)) Grid.Current_Block.moveRight();
         refreshGrid();
     }
-
     public void moveBlockLeft(){
         if(Grid.Current_Block.checkCollisionLeft(Grid.gridBackground)) Grid.Current_Block.moveLeft();
         refreshGrid();
@@ -169,43 +208,37 @@ public class GameCanvas extends JPanel implements Runnable{
         if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)) Grid.Current_Block.moveDown();
         refreshGrid();
     }
-
     public void rotateBlock(){
-        if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)) Grid.Current_Block.Rotate();
+        if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)) {
+            Grid.Current_Block.Rotate();
+            Main.rotationSound.play();
+        }
         refreshGrid();
     }
-
     public void dropBlock(){
-        if (!running) return; // Prevent input if game is over
-
+        if (!running || isGameOver) return;
         Grid.reset();
         Grid.Current_Block.dropDown(Grid.gridBackground);
+        Main.blockLandSound.play();
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
         Grid.moveToBackground();
         Grid.spawnBlock();
-        
-        if(!checkSpawn(Grid.gridBackground)){
+        if (!checkSpawn(Grid.gridBackground)) {
             gameOver();
-            return; // Stops here, preventing the glitch!
+            return;
         }
-        
         refreshGrid();
     }
-
-    //-----------------------------------
     public int clearRows() {
         int linesCleared = 0;
-
         for(int row = Grid.Rows - 1; row >= 0; --row) {
             boolean LineFilled = true;
-
             for(int c = 0; c < Grid.Columns; ++c) {
                 if (Grid.gridBackground[row][c] == -1) {
                     LineFilled = false;
                     break;
                 }
             }
-
             if (LineFilled) {
                 linesCleared++;
                 clearLine(row);
@@ -215,16 +248,18 @@ public class GameCanvas extends JPanel implements Runnable{
                 repaint();
             }
         }
-
+        if (linesCleared > 0) {
+            Main.lineClearSound.play();
+        }
+        
         return linesCleared;
     }
-
+    
     private void clearLine(int row) {
         for(int i = 0; i < Grid.Columns; ++i) {
             Grid.gridBackground[row][i] = -1;
         }
     }
-
     private void shiftDown(int row) {
         for(; row > 0; --row) {
             for(int col = 0; col < Grid.Columns; ++col) {
@@ -232,101 +267,60 @@ public class GameCanvas extends JPanel implements Runnable{
             }
         }
     }
-
     public void drawHUD(Graphics g) {
         g.setColor(Color.WHITE); 
-        g.setFont(new Font("Monospaced", Font.BOLD, 24));
-
-        // --- RIGHT SIDE: Score & Next Block ---
-        int rightSideX = Grid.x + (Grid.Columns * Grid.CellSize) + 50; 
-
-        g.drawString("SCORE: " + score, rightSideX, 100);
-        
-        g.drawString("NEXT", rightSideX, 200);
-        
-        // 1. Fill the NEXT box with a dark background so it's not hidden
-        g.setColor(new Color(0, 0, 0, 180)); // Semi-transparent black
-        g.fillRect(rightSideX, 220, 120, 120); 
-        // 2. Draw the white border on top
-        g.setColor(Color.WHITE); 
-        g.drawRect(rightSideX, 220, 120, 120); 
-        
-        drawBlockPreview(g, Grid.Next_Block, rightSideX + 20, 240); // Draw next block
-
-        // --- LEFT SIDE: Hold Block ---
-        int leftSideX = Grid.x - 170; 
-
-        g.drawString("HOLD", leftSideX, 200);
-        
-        // 1. Fill the HOLD box with a dark background
+        int fontSize = (int)(Grid.CellSize * 0.8);
+        g.setFont(new Font("Monospaced", Font.BOLD, fontSize));
+        int boxSize = Grid.CellSize * 5;
+        int gap = Grid.CellSize * 2;
+        int topY = Grid.y + Grid.CellSize;
+        int rightSideX = Grid.x + (Grid.Columns * Grid.CellSize) + gap; 
+        g.drawString("SCORE: " + score, rightSideX, topY);
+        g.drawString("NEXT", rightSideX, topY + (Grid.CellSize * 3));
         g.setColor(new Color(0, 0, 0, 180));
-        g.fillRect(leftSideX, 220, 120, 120); 
-        // 2. Draw the white border on top
+        g.fillRect(rightSideX, topY + (Grid.CellSize * 4), boxSize, boxSize); 
+        g.setColor(Color.WHITE); 
+        g.drawRect(rightSideX, topY + (Grid.CellSize * 4), boxSize, boxSize); 
+        drawBlockPreview(g, Grid.Next_Block, rightSideX + Grid.CellSize, topY + (Grid.CellSize * 5));
+        int leftSideX = Grid.x - boxSize - gap; 
+        g.drawString("HOLD", leftSideX, topY + (Grid.CellSize * 3));
+        g.setColor(new Color(0, 0, 0, 180));
+        g.fillRect(leftSideX, topY + (Grid.CellSize * 4), boxSize, boxSize); 
         g.setColor(Color.WHITE);
-        g.drawRect(leftSideX, 220, 120, 120); 
-        
+        g.drawRect(leftSideX, topY + (Grid.CellSize * 4), boxSize, boxSize); 
         if (Grid.Hold_Block != null) {
-            drawBlockPreview(g, Grid.Hold_Block, leftSideX + 20, 240); // Draw hold block
+            drawBlockPreview(g, Grid.Hold_Block, leftSideX + Grid.CellSize, topY + (Grid.CellSize * 5));
         }
     }
-
     public void drawBlockPreview(Graphics g, TetrisBlock block, int startX, int startY) {
         if (block == null) return;
-        
-        // Use a slightly smaller cell size (20 instead of 25) just for the UI so blocks fit inside the 120x120 box
-        int previewSize = 20; 
-        
+        int previewSize = (int)(Grid.CellSize * 0.8);
         for (int r = 0; r < block.Shape.length; r++) {
             for (int c = 0; c < block.Shape[0].length; c++) {
                 if (block.Shape[r][c] != -1) {
-                    // Safe color check
                     int colorIndex = block.Shape[r][c];
-                    if(colorIndex < 0 || colorIndex >= Grid.ColorToChoose.length) {
-                        colorIndex = 0;
-                    }
-                    
+                    if(colorIndex < 0 || colorIndex >= Grid.ColorToChoose.length) colorIndex = 0;
                     g.setColor(Grid.ColorToChoose[colorIndex]);
                     g.fillRect(startX + (c * previewSize), startY + (r * previewSize), previewSize, previewSize);
-                    
-                    g.setColor(Color.WHITE); // White border for the preview blocks
+                    g.setColor(Color.WHITE);
                     g.drawRect(startX + (c * previewSize), startY + (r * previewSize), previewSize, previewSize);
                 }
             }
         }
     }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g); 
-        
-        if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, 0, Width, Height, this);
-        }
-        
-        // Draw the main game grid
-        Grid.Draw(g, Width, Height);
-        
-        // Draw the UI over it
-        drawHUD(g); 
-    }
-
-    public void LaunchGame(){
-        gameThread = new Thread(this);
-        gameThread.start();
-    }
-
     public void triggerHold() {
+        if (isGameOver) return; 
         Grid.reset();
         Grid.holdPiece();
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
         repaint();
     }
-
     public void resetGame() {
-        // Create a brand new grid to wipe away all old blocks and background pieces
         Grid = new Grid_(Width, Height); 
         score = 0;
-        running = true; // Re-enable the game loop
+        running = true;
+        isGameOver = false; 
+        Main.gameOverMusic.stop();
         Grid.spawnBlock();
         repaint();
     }

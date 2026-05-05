@@ -8,69 +8,60 @@ public class Grid_ {
     public int[][] gridBackground = new int[20][10];
     public TetrisBlock Current_Block;
     public ArrayList<TetrisBlock> Background_Blocks = new ArrayList<>();
-
     public int Rows;
     public int Columns;
     public int CellSize;
-    public Color[] ColorToChoose = {Color.red, Color.blue, Color.GREEN};
-
+    public Color[] ColorToChoose = {
+        Color.CYAN, 
+        Color.YELLOW, 
+        new Color(128, 0, 128), 
+        Color.GREEN, 
+        Color.RED, 
+        Color.BLUE, 
+        Color.ORANGE
+    };
     public TetrisBlock Next_Block;
     public TetrisBlock Hold_Block = null;
     public boolean canHold = true;
-
-
-    public Grid_(int GameCanvasWidth, int GameCanvasHeight){
+    public Grid_(int GameCanvasWidth, int GameCanvasHeight) {
         Columns = grid[0].length;
         Rows = grid.length;
-        CellSize = 25;
-
+        CellSize = GameCanvasHeight / 25;
         for(int i=0;i<Rows;i++){
             for(int j=0;j<Columns;j++){
                 grid[i][j] = -1;
                 gridBackground[i][j] = -1;
             }
         }
-
         x = GameCanvasWidth/2 - CellSize * (Columns/2);
         y = GameCanvasHeight/2 - CellSize * (Rows/2);
-        
-        // Generate the first Next block right away
         Next_Block = generateRandomBlock(); 
     }
-
     private TetrisBlock generateRandomBlock() {
         Random r = new Random();
         int type = r.nextInt(7);
-        if(type==0) return new L_Piece();
-        if(type==1) return new Rev_L_Piece();
-        if(type==2) return new Z_Piece();
-        if(type==3) return new S_Piece();
-        if(type==4) return new T_Piece();
-        if(type==5) return new Square_Piece();
-        return new I_Piece();
+        if(type==0) return new L_Shape();
+        if(type==1) return new J_Shape();
+        if(type==2) return new Z_Shape();
+        if(type==3) return new S_Shape();
+        if(type==4) return new T_Shape();
+        if(type==5) return new O_Shape();
+        return new I_Shape();
     }
-
     public void holdPiece() {
-        if (!canHold) return; // Only allow one hold per piece drop
-
+        if (!canHold) return; 
         if (Hold_Block == null) {
-            // First time holding: put current in hold, spawn next
             Hold_Block = Current_Block;
             spawnBlock();
         } else {
-            // Swap current and hold
             TetrisBlock temp = Current_Block;
             Current_Block = Hold_Block;
-            
-            // Reset the swapped block's position
             Current_Block.x = Columns/2-1;
             Current_Block.y = 0;
-            
             Hold_Block = temp;
         }
-        canHold = false; // Lock holding until the block is placed
+        canHold = false; 
     }
-
     public void reset(){
         for(int i=0;i<Rows;i++){
             for(int j=0;j<Columns;j++){
@@ -78,7 +69,6 @@ public class Grid_ {
             }
         }
     }
-
     public void moveToBackground() {
         for(int i = 0; i < grid.length; i++){
             for(int j = 0; j < grid[0].length; j++){
@@ -86,18 +76,13 @@ public class Grid_ {
             }
         }
     }
-
     public void spawnBlock(){
-        Current_Block = Next_Block; // Take the next block
+        Current_Block = Next_Block; 
         Current_Block.x = Columns/2-1;
         Current_Block.y = 0;
-        
-        Next_Block = generateRandomBlock(); // Generate a new one for the queue
-        canHold = true; // Reset the player's ability to hold for this turn
+        Next_Block = generateRandomBlock(); 
+        canHold = true; 
     }
-
-
-
     public void Draw(Graphics g, int w, int h){
         drawBackground(g);
         for(int i = 0; i < Rows; i++){
@@ -108,18 +93,28 @@ public class Grid_ {
             }
         }
     }
-
     public void drawSquare(Graphics g, Color color, int x, int y) {
         g.setColor(color);
         g.fillRect(x, y, CellSize, CellSize);
         g.setColor(Color.black);
         g.drawRect(x, y, CellSize, CellSize);
     }
-
     public void drawBackground(Graphics g){
-        g.setColor(Color.black);
-        g.fillRect(x - CellSize, y - CellSize, CellSize * Columns + CellSize*2, CellSize * Rows + CellSize*2);
-        g.setColor(Color.WHITE);
-        g.fillRect(x, y, CellSize * Columns, CellSize * Rows);
+        g.setColor(Color.BLACK);
+        g.fillRect(x - 4, y - 4, (CellSize * Columns) + 8, (CellSize * Rows) + 8);
+        for (int r = 0; r < Rows; r++) {
+            for (int c = 0; c < Columns; c++) {
+                int cellX = x + (c * CellSize);
+                int cellY = y + (r * CellSize);
+                g.setColor(new Color(60, 60, 60)); 
+                g.fillRect(cellX, cellY, CellSize, CellSize);
+                g.setColor(new Color(20, 20, 20)); 
+                g.fillRect(cellX + 2, cellY + 2, CellSize - 2, CellSize - 2);
+                g.setColor(new Color(40, 40, 40)); 
+                g.fillRect(cellX + 2, cellY + 2, CellSize - 4, CellSize - 4);
+                g.setColor(Color.BLACK);
+                g.drawRect(cellX, cellY, CellSize, CellSize);
+            }
+        }
     }
 }
