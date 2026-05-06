@@ -17,18 +17,7 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args){
-        JFrame frame = new JFrame();
-        frame.setTitle("Tetris Made by Anderson The First");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        GameCanvas canvas = new GameCanvas();
-        frame.add(canvas);
-        frame.pack(); //cái này biến dimension của canvas thành dimension của cái window
-
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-
-        canvas.LaunchGame();
+        Window w = new Window();
 
     }
 }
