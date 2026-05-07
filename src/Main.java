@@ -61,10 +61,24 @@ public class Main extends JFrame {
         JButton leaderBtn = new JButton("HIGHEST SCORE");
         JButton creditsBtn = new JButton("CREDITS");
         JButton quitBtn = new JButton("QUIT");
+
+        JLabel gameTitle = new JLabel("<html>" +
+                "<font color='#FD3F59'>T</font>" +
+                "<font color='#FFC82E'>E</font>" +
+                "<font color='#FEFB34'>T</font>" +
+                "<font color='#53DA3F'>R</font>" +
+                "<font color='#01EDFA'>I</font>" +
+                "<font color='#DD0AB2'>S</font>" +
+                "</html>");
+
+        gameTitle.setFont(new Font("Monospaced", Font.BOLD, 300));
+        gameTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         styleButton(playBtn, new Color(0, 180, 0));
         styleButton(leaderBtn, new Color(0, 100, 255));
         styleButton(creditsBtn, new Color(255, 128, 0));
         styleButton(quitBtn, new Color(200, 0, 0));
+
         playBtn.addActionListener(e -> {
             menuClickSound.play();
             menuMusic.stop();
@@ -88,6 +102,8 @@ public class Main extends JFrame {
             menuClickSound.play();
             System.exit(0);
         });
+        box.add(gameTitle);
+        box.add(Box.createVerticalStrut(100));
         box.add(playBtn);
         box.add(Box.createVerticalStrut(25));
         box.add(leaderBtn);
