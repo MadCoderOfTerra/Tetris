@@ -5,20 +5,11 @@ import javax.swing.plaf.ColorUIResource;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
 
-// 0. I - Straight line of 4
-// 1. O - Square
-// 2. T - T shape
-// 3. S_Left - S with a hook to the left
-// 4. Z_Right - Z with a hook to the right
-// 5. J_Left - Long left hook
-// 6. L_Right - Long right hook
-
 //----------------------------------------------------------------------------------------------------------------------
 
 public class Main {
     public static void main(String[] args){
         Window w = new Window();
-
     }
 }
 

@@ -200,13 +200,13 @@ public class GameCanvas extends JPanel implements Runnable {
         return linesCleared;
     }
 
-    private void clearLine(int row) {
+    public void clearLine(int row) {
         for(int i = 0; i < Grid.Columns; i++) {
             Grid.gridBackground[row][i] = -1;
         }
     }
 
-    private void shiftDown(int row) {
+    public void shiftDown(int row) {
         for(; row > 0; row--) {
             for(int col = 0; col < Grid.Columns; col++) {
                 Grid.gridBackground[row][col] = Grid.gridBackground[row-1][col];

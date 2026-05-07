@@ -24,9 +24,6 @@ public class Window extends JFrame {
     /*public Window(){
         GameCanvas gc = new GameCanvas();
 
-        setTitle("Tetris Made by Anderson and da Boys");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         add(gc);
         pack(); //cái này biến dimension của canvas thành dimension của cái window
 

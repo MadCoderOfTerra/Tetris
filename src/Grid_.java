@@ -6,13 +6,12 @@ public class Grid_ {
     public int x, y;
     public int[][] grid = new int[20][10];
     public int[][] gridBackground = new int[20][10];
-    public TetrisBlock Current_Block;
-    public ArrayList<TetrisBlock> Background_Blocks = new ArrayList<>();
+    public TetrisBlock Current_Block
 
     public int Rows;
     public int Columns;
     public int CellSize;
-    public Color[] ColorToChoose = {Color.red, Color.blue, Color.GREEN};
+    public Color[] ColorToChoose = {Color.red, Color.blue, Color.yellow, Color.MAGENTA};
 
 
     public Grid_(int GameCanvasWidth, int GameCanvasHeight){
