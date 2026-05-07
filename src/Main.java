@@ -44,12 +44,16 @@ public class Main extends JFrame {
     }
 
     private void styleButton(JButton btn, Color bgColor) {
+        Dimension fixedSize = new Dimension(350, 80);
         btn.setBackground(bgColor);
         btn.setForeground(Color.WHITE);
         btn.setFont(new Font("Monospaced", Font.BOLD, 30));
         btn.setFocusPainted(false);
         btn.setOpaque(true);
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn.setMinimumSize(fixedSize);
+        btn.setPreferredSize(fixedSize);
+        btn.setMaximumSize(fixedSize);
         btn.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.WHITE, 4), 
             BorderFactory.createEmptyBorder(15, 40, 15, 40)
