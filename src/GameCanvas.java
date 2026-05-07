@@ -11,6 +11,7 @@ public class GameCanvas extends JPanel implements Runnable {
     public boolean isGameOver = false; 
     Grid_ Grid;
     Thread gameThread;
+
     public GameCanvas() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Width = (int) screenSize.getWidth();
@@ -22,6 +23,7 @@ public class GameCanvas extends JPanel implements Runnable {
         initControls();
         Grid.spawnBlock();
     }
+
     public void drawGhostPiece(Graphics g) {
         if (Grid.Current_Block == null) return;
         int originalY = Grid.Current_Block.y;
@@ -45,6 +47,7 @@ public class GameCanvas extends JPanel implements Runnable {
         }
         Grid.Current_Block.y = originalY;
     }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -86,10 +89,12 @@ public class GameCanvas extends JPanel implements Runnable {
             g.drawString("Press [Q] to Quit to Menu", (Width / 2) - (Grid.CellSize * 5), Height / 2 + Grid.CellSize * 2);
         }
     }
+
     public void LaunchGame(){
         gameThread = new Thread(this);
         gameThread.start();
     }
+
     int score = 0;
     @Override
     public void run() {
@@ -104,6 +109,7 @@ public class GameCanvas extends JPanel implements Runnable {
             }
         }
     }
+
     private void gameOver() {
         running = false;
         isGameOver = true; 
@@ -114,6 +120,7 @@ public class GameCanvas extends JPanel implements Runnable {
         Main.gameOverMusic.play();
         repaint(); 
     }
+
     public void update() {
         if (!running) return;
         Grid.reset();
@@ -132,6 +139,7 @@ public class GameCanvas extends JPanel implements Runnable {
         }
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
     }
+
     public boolean checkSpawn(int[][] grid) {
         int y = Grid.Current_Block.y;
         int x = Grid.Current_Block.x;
@@ -142,6 +150,7 @@ public class GameCanvas extends JPanel implements Runnable {
         }
         return true;
     }
+
     public void initControls() {
         InputMap im = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap am = getActionMap();
@@ -154,6 +163,7 @@ public class GameCanvas extends JPanel implements Runnable {
         im.put(KeyStroke.getKeyStroke("P"), "pause");
         im.put(KeyStroke.getKeyStroke("ESCAPE"), "pause");
         im.put(KeyStroke.getKeyStroke("Q"), "quit");
+
         am.put("pause", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 if (running && !isGameOver) {
@@ -167,6 +177,7 @@ public class GameCanvas extends JPanel implements Runnable {
                 }
             }
         });
+
         am.put("quit", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
                 if (isPaused || isGameOver) {
@@ -184,6 +195,7 @@ public class GameCanvas extends JPanel implements Runnable {
                 }
             }
         });
+
         am.put("right", new AbstractAction() { public void actionPerformed(ActionEvent e) { moveBlockRight(); }});
         am.put("left", new AbstractAction() { public void actionPerformed(ActionEvent e) { moveBlockLeft(); }});
         am.put("up", new AbstractAction() { public void actionPerformed(ActionEvent e) { rotateBlock(); }});
@@ -191,23 +203,28 @@ public class GameCanvas extends JPanel implements Runnable {
         am.put("space", new AbstractAction() { public void actionPerformed(ActionEvent e) { dropBlock(); }});
         am.put("hold", new AbstractAction() { public void actionPerformed(ActionEvent e) { triggerHold(); }});
     }
+
     public void refreshGrid(){
         Grid.reset();
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
         repaint();
     }
+
     public void moveBlockRight(){
         if(Grid.Current_Block.checkCollisionRight(Grid.gridBackground)) Grid.Current_Block.moveRight();
         refreshGrid();
     }
+
     public void moveBlockLeft(){
         if(Grid.Current_Block.checkCollisionLeft(Grid.gridBackground)) Grid.Current_Block.moveLeft();
         refreshGrid();
     }
+
     public void moveBlockDown(){
         if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)) Grid.Current_Block.moveDown();
         refreshGrid();
     }
+
     public void rotateBlock(){
         if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)) {
             Grid.Current_Block.Rotate();
@@ -215,6 +232,7 @@ public class GameCanvas extends JPanel implements Runnable {
         }
         refreshGrid();
     }
+
     public void dropBlock(){
         if (!running || isGameOver) return;
         Grid.reset();
@@ -229,6 +247,7 @@ public class GameCanvas extends JPanel implements Runnable {
         }
         refreshGrid();
     }
+
     public int clearRows() {
         int linesCleared = 0;
         for(int row = Grid.Rows - 1; row >= 0; --row) {
@@ -260,6 +279,7 @@ public class GameCanvas extends JPanel implements Runnable {
             Grid.gridBackground[row][i] = -1;
         }
     }
+
     private void shiftDown(int row) {
         for(; row > 0; --row) {
             for(int col = 0; col < Grid.Columns; ++col) {
@@ -267,6 +287,7 @@ public class GameCanvas extends JPanel implements Runnable {
             }
         }
     }
+
     public void drawHUD(Graphics g) {
         g.setColor(Color.WHITE); 
         int fontSize = (int)(Grid.CellSize * 0.8);
@@ -292,6 +313,7 @@ public class GameCanvas extends JPanel implements Runnable {
             drawBlockPreview(g, Grid.Hold_Block, leftSideX + Grid.CellSize, topY + (Grid.CellSize * 5));
         }
     }
+
     public void drawBlockPreview(Graphics g, TetrisBlock block, int startX, int startY) {
         if (block == null) return;
         int previewSize = (int)(Grid.CellSize * 0.8);
@@ -308,6 +330,7 @@ public class GameCanvas extends JPanel implements Runnable {
             }
         }
     }
+
     public void triggerHold() {
         if (isGameOver) return; 
         Grid.reset();
@@ -315,6 +338,7 @@ public class GameCanvas extends JPanel implements Runnable {
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
         repaint();
     }
+
     public void resetGame() {
         Grid = new Grid_(Width, Height); 
         score = 0;

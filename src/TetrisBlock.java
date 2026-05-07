@@ -7,6 +7,7 @@ public abstract class TetrisBlock {
     public int y;
     public int CurrentOrientation;
     public int colorID;
+
     public TetrisBlock(int[][] Shape, int colorID){
         this.Shape = Shape;
         this.colorID = colorID; 
@@ -16,6 +17,7 @@ public abstract class TetrisBlock {
         Find4Rotation();
         Rotate();
     }
+
     public void Find4Rotation(){
         Shape_Rotation = new int[4][][];
         for(int i = 0; i < 4; ++i) {
@@ -30,6 +32,7 @@ public abstract class TetrisBlock {
             Shape = Shape_Rotation[i];
         }
     }
+
     public void resetColor(){
         for(int i = 0; i < Shape.length; i++){
             for(int j = 0; j < Shape[0].length; j++){
@@ -37,6 +40,7 @@ public abstract class TetrisBlock {
             }
         }
     }
+
     public int[][] setBlockInGrid(int[][] grid){
         int rows = grid.length;
         int columns = grid[0].length;
@@ -47,16 +51,19 @@ public abstract class TetrisBlock {
         }
         return grid;
     }
+
     public void Rotate(){
         CurrentOrientation = (CurrentOrientation+1) % 4;
         Shape = Shape_Rotation[CurrentOrientation];
     }
+
     public void moveDown(){ y++; }
     public void moveRight(){ x++; }
     public void moveLeft(){ x--; }
     public void dropDown(int[][] grid){
         while(checkCollisionUnder(grid)) y++;
     }
+
     public boolean checkCollisionUnder(int[][] grid){
         for(int col = 0; col < getWidth(); col++){
             for(int row = getHeight()-1; row >= 0; row--){
@@ -69,6 +76,7 @@ public abstract class TetrisBlock {
         }
         return true;
     }
+
     public boolean checkCollisionLeft(int[][] grid){
         for(int row = 0; row < getHeight(); row++){
             for(int col = 0; col < getWidth(); col++){
@@ -81,6 +89,7 @@ public abstract class TetrisBlock {
         }
         return true;
     }
+
     public boolean checkCollisionRight(int[][] grid){
         for(int row = 0; row < getHeight(); row++){
             for(int col = getWidth()-1; col >= 0; col--){
@@ -93,6 +102,7 @@ public abstract class TetrisBlock {
         }
         return true;
     }
+
     public boolean checkCollisionRotate(int[][] grid){
         int nextOrientation = (CurrentOrientation + 1) % 4;
         int[][] nextShape = Shape_Rotation[nextOrientation];
@@ -110,6 +120,7 @@ public abstract class TetrisBlock {
         }
         return true;
     }
+
     public int getHeight() {return Shape.length;}
     public int getWidth() {return Shape[0].length;}
 }

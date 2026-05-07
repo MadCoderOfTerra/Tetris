@@ -15,6 +15,7 @@ public class Main extends JFrame {
     public static Sound rotationSound = new Sound();
     public static Sound lineClearSound = new Sound();
     private JLabel highScoreLabel;
+
     public Main() {
         setTitle("Tetris");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -41,6 +42,7 @@ public class Main extends JFrame {
         setVisible(true);
         menuMusic.playLoop();
     }
+
     private void styleButton(JButton btn, Color bgColor) {
         btn.setBackground(bgColor);
         btn.setForeground(Color.WHITE);
@@ -53,6 +55,7 @@ public class Main extends JFrame {
             BorderFactory.createEmptyBorder(15, 40, 15, 40)
         ));
     }
+
     private JPanel createMenuPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.BLACK);
@@ -114,6 +117,7 @@ public class Main extends JFrame {
         panel.add(box);
         return panel;
     }
+
     private JPanel createLeaderboardPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.BLACK);
@@ -133,6 +137,7 @@ public class Main extends JFrame {
         panel.add(box);
         return panel; 
     }
+
     private JPanel createCreditsPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.BLACK);
@@ -152,6 +157,7 @@ public class Main extends JFrame {
         panel.add(box);
         return panel;
     }
+
     public int getHighScore() { return prefs.getInt("HighScore", 0); }
     public void setHighScore(int newScore) { if (newScore > getHighScore()) prefs.putInt("HighScore", newScore); }
     public static void main(String[] args) { SwingUtilities.invokeLater(() -> new Main()); }

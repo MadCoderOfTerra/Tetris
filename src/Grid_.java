@@ -11,18 +11,12 @@ public class Grid_ {
     public int Rows;
     public int Columns;
     public int CellSize;
-    public Color[] ColorToChoose = {
-        Color.CYAN, 
-        Color.YELLOW, 
-        new Color(128, 0, 128), 
-        Color.GREEN, 
-        Color.RED, 
-        Color.BLUE, 
-        Color.ORANGE
-    };
+
+    public Color[] ColorToChoose = {Color.CYAN, Color.YELLOW, new Color(128, 0, 128), Color.GREEN, Color.RED, Color.BLUE, Color.ORANGE};
     public TetrisBlock Next_Block;
     public TetrisBlock Hold_Block = null;
     public boolean canHold = true;
+
     public Grid_(int GameCanvasWidth, int GameCanvasHeight) {
         Columns = grid[0].length;
         Rows = grid.length;
@@ -37,6 +31,7 @@ public class Grid_ {
         y = GameCanvasHeight/2 - CellSize * (Rows/2);
         Next_Block = generateRandomBlock(); 
     }
+
     private TetrisBlock generateRandomBlock() {
         Random r = new Random();
         int type = r.nextInt(7);
@@ -48,6 +43,7 @@ public class Grid_ {
         if(type==5) return new O_Shape();
         return new I_Shape();
     }
+
     public void holdPiece() {
         if (!canHold) return; 
         if (Hold_Block == null) {
@@ -62,6 +58,7 @@ public class Grid_ {
         }
         canHold = false; 
     }
+
     public void reset(){
         for(int i=0;i<Rows;i++){
             for(int j=0;j<Columns;j++){
@@ -69,6 +66,7 @@ public class Grid_ {
             }
         }
     }
+
     public void moveToBackground() {
         for(int i = 0; i < grid.length; i++){
             for(int j = 0; j < grid[0].length; j++){
@@ -76,6 +74,7 @@ public class Grid_ {
             }
         }
     }
+
     public void spawnBlock(){
         Current_Block = Next_Block; 
         Current_Block.x = Columns/2-1;
@@ -83,6 +82,7 @@ public class Grid_ {
         Next_Block = generateRandomBlock(); 
         canHold = true; 
     }
+
     public void Draw(Graphics g, int w, int h){
         drawBackground(g);
         for(int i = 0; i < Rows; i++){
@@ -93,12 +93,14 @@ public class Grid_ {
             }
         }
     }
+
     public void drawSquare(Graphics g, Color color, int x, int y) {
         g.setColor(color);
         g.fillRect(x, y, CellSize, CellSize);
         g.setColor(Color.black);
         g.drawRect(x, y, CellSize, CellSize);
     }
+
     public void drawBackground(Graphics g){
         g.setColor(Color.BLACK);
         g.fillRect(x - 4, y - 4, (CellSize * Columns) + 8, (CellSize * Rows) + 8);
