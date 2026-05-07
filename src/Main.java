@@ -65,7 +65,7 @@ public class Main extends JFrame {
         panel.setBackground(Color.BLACK);
         Box box = Box.createVerticalBox();
         JButton playBtn = new JButton("PLAY GAME");
-        JButton leaderBtn = new JButton("HIGHEST SCORE");
+        JButton leaderBtn = new JButton("HIGH SCORE");
         JButton creditsBtn = new JButton("CREDITS");
         JButton quitBtn = new JButton("QUIT");
 
@@ -145,7 +145,7 @@ public class Main extends JFrame {
     private JPanel createCreditsPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.BLACK);
-        JLabel creditsLabel = new JLabel("<html><center><h1 style='font-size: 80px; color: #FF8000;'>CREDITS</h1><br><h2 style='font-size: 50px;'>Made by Group C<br><br>Enjoy the blocks!</h2></center></html>");
+        JLabel creditsLabel = new JLabel("<html><center><h1 style='font-size: 80px; color: #FF8000;'>CREDITS</h1><br><h2 style='font-size: 50px;'>Made by Group C<br><i><br>Bùi Gia Bảo<br>Trần Nguyễn Thành An<br>Phan Hoàng An<br>Võ Tuấn Kiệt<br>Trần Khánh Duy</i></h2></center></html>");
         creditsLabel.setForeground(Color.WHITE);
         creditsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         JButton backBtn = new JButton("BACK TO MENU");
