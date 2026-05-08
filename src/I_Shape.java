@@ -5,13 +5,21 @@ public class I_Shape extends TetrisBlock {
 
     @Override
     public void Rotate() {
-        super.Rotate();
-        if(this.getWidth() == 1) {
+        if(CurrentOrientation==1){
+            y -= 1;
+            x += 2;
+        } else if(CurrentOrientation==2){
+            x -= 2;
+            y += 2;
+        } else if(CurrentOrientation==3){
+            y -= 2;
             x += 1;
-            y += 1;
-        } else {
+        } else if(CurrentOrientation==0){
             x -= 1;
             y += 1;
         }
+
+        super.Rotate();
+
     }
 }

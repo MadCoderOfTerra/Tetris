@@ -22,17 +22,17 @@ public class Main extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setUndecorated(true);
 
-        menuMusic.loadSound("../materials/music/menu.wav"); 
-        gameMusic.loadSound("../materials/music/tetris.wav");
-        gameOverMusic.loadSound("../materials/music/gameover.wav");
-        menuClickSound.loadSound("../materials/music/menusound.wav");
-        blockLandSound.loadSound("../materials/music/blockland.wav");
-        rotationSound.loadSound("../materials/music/rotation.wav");
-        lineClearSound.loadSound("../materials/music/lineclear.wav");
+        menuMusic.loadSound("materials/music/menu.wav");
+        gameMusic.loadSound("materials/music/tetris.wav");
+        gameOverMusic.loadSound("materials/music/gameover.wav");
+        menuClickSound.loadSound("materials/music/menusound.wav");
+        blockLandSound.loadSound("materials/music/blockland.wav");
+        rotationSound.loadSound("materials/music/rotation.wav");
+        lineClearSound.loadSound("materials/music/lineclear.wav");
 
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
-        JPanel leaderboardPanel = createLeaderboardPanel(); 
+        JPanel leaderboardPanel = createLeaderboardPanel();
         JPanel creditsPanel = createCreditsPanel();
         JPanel menuPanel = createMenuPanel();
 
@@ -176,7 +176,6 @@ public class Main extends JFrame {
 
     public int getHighScore() { return prefs.getInt("HighScore", 0); }
     public void setHighScore(int newScore) { if (newScore > getHighScore()) prefs.putInt("HighScore", newScore); }
-
 
 
     public static void main(String[] args) {
