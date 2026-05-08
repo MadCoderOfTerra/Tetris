@@ -7,7 +7,6 @@ public class Grid_ {
     public int[][] grid = new int[20][10];
     public int[][] gridBackground = new int[20][10];
     public TetrisBlock Current_Block;
-    public ArrayList<TetrisBlock> Background_Blocks = new ArrayList<>();
     public int Rows;
     public int Columns;
     public int CellSize;

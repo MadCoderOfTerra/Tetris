@@ -118,6 +118,7 @@ public abstract class TetrisBlock {
                 }
             }
         }
+        Rotate();
         return true;
     }
 

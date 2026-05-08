@@ -103,7 +103,7 @@ public class GameCanvas extends JPanel implements Runnable {
                 update();
             }
             repaint();
-            try { Thread.sleep(500); } catch (InterruptedException var2) { return; }
+            try { Thread.sleep(700); } catch (InterruptedException var2) { return; }
             if (!paused && !gameover) {
                 score += clearRows();
             }
@@ -226,10 +226,19 @@ public class GameCanvas extends JPanel implements Runnable {
     }
 
     public void rotateBlock(){
-        if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)) {
-            Grid.Current_Block.Rotate();
+        if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)){
             Main.rotationSound.play();
+            refreshGrid();
+            return;
         }
+
+        Grid.Current_Block.x--;
+        if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)){
+            Main.rotationSound.play();
+            refreshGrid();
+            return;
+        }
+        Grid.Current_Block.x++;
         refreshGrid();
     }
 
