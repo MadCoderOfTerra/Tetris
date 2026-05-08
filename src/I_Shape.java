@@ -50,6 +50,7 @@ public class I_Shape extends TetrisBlock {
         for(int row = 0; row < nextShape.length; row++){
             for(int col = 0; col < nextShape[0].length; col++){
                 if(nextShape[row][col] != -1){
+                    while(y + row + offsetY < 0) y++;
                     int gridRow = y + row + offsetY;
                     int gridCol = x + col + offsetX;
                     if(gridCol < 0) return false;
