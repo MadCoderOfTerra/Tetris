@@ -21,6 +21,7 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setUndecorated(true);
+
         menuMusic.loadSound("../materials/music/menu.wav"); 
         gameMusic.loadSound("../materials/music/tetris.wav");
         gameOverMusic.loadSound("../materials/music/gameover.wav");
@@ -28,12 +29,14 @@ public class Main extends JFrame {
         blockLandSound.loadSound("../materials/music/blockland.wav");
         rotationSound.loadSound("../materials/music/rotation.wav");
         lineClearSound.loadSound("../materials/music/lineclear.wav");
+
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
         JPanel leaderboardPanel = createLeaderboardPanel(); 
         JPanel creditsPanel = createCreditsPanel();
         JPanel menuPanel = createMenuPanel();
-        gameCanvas = new GameCanvas(); 
+
+        gameCanvas = new GameCanvas();
         mainContainer.add(menuPanel, "Menu");
         mainContainer.add(leaderboardPanel, "Leaderboard");
         mainContainer.add(creditsPanel, "Credits");
@@ -96,19 +99,23 @@ public class Main extends JFrame {
             gameCanvas.LaunchGame(); 
             gameCanvas.requestFocusInWindow(); 
         });
+
         leaderBtn.addActionListener(e -> {
             menuClickSound.play();
             highScoreLabel.setText("<html><center><h1 style='font-size: 80px; color: cyan;'>HIGHEST SCORE</h1><br><h2 style='font-size: 70px; color: yellow;'>" + getHighScore() + "</h2></center></html>");
             cardLayout.show(mainContainer, "Leaderboard");
         });
+
         creditsBtn.addActionListener(e -> {
             menuClickSound.play();
             cardLayout.show(mainContainer, "Credits");
         });
+
         quitBtn.addActionListener(e -> {
             menuClickSound.play();
             System.exit(0);
         });
+
         box.add(gameTitle);
         box.add(Box.createVerticalStrut(100));
         box.add(playBtn);
@@ -128,12 +135,15 @@ public class Main extends JFrame {
         highScoreLabel = new JLabel();
         highScoreLabel.setForeground(Color.WHITE);
         highScoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         JButton backBtn = new JButton("BACK TO MENU");
-        styleButton(backBtn, new Color(128, 0, 128)); 
+        styleButton(backBtn, new Color(128, 0, 128));
+
         backBtn.addActionListener(e -> {
             menuClickSound.play();
             cardLayout.show(mainContainer, "Menu");
-        }); 
+        });
+
         Box box = Box.createVerticalBox();
         box.add(highScoreLabel);
         box.add(Box.createVerticalStrut(80));
@@ -149,11 +159,13 @@ public class Main extends JFrame {
         creditsLabel.setForeground(Color.WHITE);
         creditsLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         JButton backBtn = new JButton("BACK TO MENU");
-        styleButton(backBtn, new Color(128, 0, 128)); 
+        styleButton(backBtn, new Color(128, 0, 128));
+
         backBtn.addActionListener(e -> {
             menuClickSound.play();
             cardLayout.show(mainContainer, "Menu");
-        }); 
+        });
+
         Box box = Box.createVerticalBox();
         box.add(creditsLabel);
         box.add(Box.createVerticalStrut(100));
@@ -164,5 +176,11 @@ public class Main extends JFrame {
 
     public int getHighScore() { return prefs.getInt("HighScore", 0); }
     public void setHighScore(int newScore) { if (newScore > getHighScore()) prefs.putInt("HighScore", newScore); }
-    public static void main(String[] args) { SwingUtilities.invokeLater(() -> new Main()); }
+
+
+
+    public static void main(String[] args) {
+        System.setProperty("sun.java2d.uiScale", "1.0"); // fixes the scale 125% problem
+        SwingUtilities.invokeLater(() -> new Main());
+    }
 }

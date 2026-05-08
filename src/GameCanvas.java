@@ -7,8 +7,8 @@ public class GameCanvas extends JPanel implements Runnable {
     public int Width;
     public int Height;
     public boolean running = true;
-    public boolean isPaused = false;
-    public boolean isGameOver = false; 
+    public boolean paused = false;
+    public boolean gameover = false;
     Grid_ Grid;
     Thread gameThread;
 
@@ -66,7 +66,7 @@ public class GameCanvas extends JPanel implements Runnable {
         g.drawString("↓      : Soft Drop", 20, textY + controlFont * 4);
         g.drawString("SPACE  : Hard Drop", 20, textY + controlFont * 5);
         g.drawString("C      : Hold", 20, textY + controlFont * 6);
-        if (isGameOver) {
+        if (gameover) {
             g.setColor(new Color(150, 0, 0, 180)); 
             g.fillRect(0, 0, Width, Height);
             g.setColor(Color.WHITE);
@@ -78,7 +78,7 @@ public class GameCanvas extends JPanel implements Runnable {
             g.setColor(Color.WHITE);
             g.setFont(new Font("Monospaced", Font.PLAIN, (int)(Grid.CellSize * 0.8)));
             g.drawString("Press [Q] to Quit to Menu", (Width / 2) - (Grid.CellSize * 5), Height / 2 + Grid.CellSize * 3);
-        } else if (isPaused) {
+        } else if (paused) {
             g.setColor(new Color(0, 0, 0, 180)); 
             g.fillRect(0, 0, Width, Height);
             g.setColor(Color.WHITE);
@@ -99,12 +99,12 @@ public class GameCanvas extends JPanel implements Runnable {
     @Override
     public void run() {
         while(running){
-            if (!isPaused && !isGameOver) {
+            if (!paused && !gameover) {
                 update();
             }
             repaint();
             try { Thread.sleep(500); } catch (InterruptedException var2) { return; }
-            if (!isPaused && !isGameOver) {
+            if (!paused && !gameover) {
                 score += clearRows();
             }
         }
@@ -112,7 +112,7 @@ public class GameCanvas extends JPanel implements Runnable {
 
     private void gameOver() {
         running = false;
-        isGameOver = true; 
+        gameover = true;
         Preferences prefs = Preferences.userNodeForPackage(GameCanvas.class);
         int currentHigh = prefs.getInt("HighScore", 0);
         if(score > currentHigh) prefs.putInt("HighScore", score);
@@ -166,9 +166,9 @@ public class GameCanvas extends JPanel implements Runnable {
 
         am.put("pause", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                if (running && !isGameOver) {
-                    isPaused = !isPaused;
-                    if (isPaused) {
+                if (running && !gameover) {
+                    paused = !paused;
+                    if (paused) {
                         Main.gameMusic.pause();
                     } else {
                         Main.gameMusic.resume();
@@ -180,7 +180,7 @@ public class GameCanvas extends JPanel implements Runnable {
 
         am.put("quit", new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                if (isPaused || isGameOver) {
+                if (paused || gameover) {
                     Main.menuClickSound.play();
                     running = false; 
                     Main.gameMusic.stop();
@@ -234,7 +234,7 @@ public class GameCanvas extends JPanel implements Runnable {
     }
 
     public void dropBlock(){
-        if (!running || isGameOver) return;
+        if (!running || gameover) return;
         Grid.reset();
         Grid.Current_Block.dropDown(Grid.gridBackground);
         Main.blockLandSound.play();
@@ -332,7 +332,7 @@ public class GameCanvas extends JPanel implements Runnable {
     }
 
     public void triggerHold() {
-        if (isGameOver) return; 
+        if (gameover) return;
         Grid.reset();
         Grid.holdPiece();
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
@@ -343,7 +343,7 @@ public class GameCanvas extends JPanel implements Runnable {
         Grid = new Grid_(Width, Height); 
         score = 0;
         running = true;
-        isGameOver = false; 
+        gameover = false;
         Main.gameOverMusic.stop();
         Grid.spawnBlock();
         repaint();
