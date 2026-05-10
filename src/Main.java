@@ -175,8 +175,6 @@ public class Main extends JFrame {
     }
 
     public int getHighScore() { return prefs.getInt("HighScore", 0); }
-    public void setHighScore(int newScore) { if (newScore > getHighScore()) prefs.putInt("HighScore", newScore); }
-
 
     public static void main(String[] args) {
         System.setProperty("sun.java2d.uiScale", "1.0"); // fixes the scale 125% problem
