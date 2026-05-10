@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Grid_ {
     public int x, y;
@@ -48,7 +47,7 @@ public class Grid_ {
     }
 
     public void holdPiece() {
-        if (!canHold) return; 
+        if (!canHold) return;
         if (Hold_Block == null) {
             Hold_Block = Current_Block;
             spawnBlock();
@@ -97,14 +96,14 @@ public class Grid_ {
         }
     }
 
-    public void drawSquare(Graphics g, Color color, int x, int y) {
+    private void drawSquare(Graphics g, Color color, int x, int y) {
         g.setColor(color);
         g.fillRect(x, y, CellSize, CellSize);
         g.setColor(Color.black);
         g.drawRect(x, y, CellSize, CellSize);
     }
 
-    public void drawBackground(Graphics g){
+    private void drawBackground(Graphics g){
         g.setColor(Color.BLACK);
         g.fillRect(x - 4, y - 4, (CellSize * Columns) + 8, (CellSize * Rows) + 8);
         for (int r = 0; r < Rows; r++) {

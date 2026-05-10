@@ -7,9 +7,11 @@ public class GameCanvas extends JPanel implements Runnable {
     public int Width;
     public int Height;
     public int gameSpeed = 1000;
+    public int score = 0;
     public boolean running = true;
     public boolean paused = false;
     public boolean gameover = false;
+
     Grid_ Grid;
     Thread gameThread;
 
@@ -30,7 +32,6 @@ public class GameCanvas extends JPanel implements Runnable {
         gameThread.start();
     }
 
-    int score = 0;
     @Override
     public void run() {
         while(running){
@@ -46,7 +47,7 @@ public class GameCanvas extends JPanel implements Runnable {
         }
     }
 
-    public synchronized void update() {
+    private synchronized void update() {
         if (!running) return;
         Grid.reset();
         if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)){
@@ -76,7 +77,7 @@ public class GameCanvas extends JPanel implements Runnable {
         repaint();
     }
 
-    public boolean checkSpawn(int[][] grid) {
+    private boolean checkSpawn(int[][] grid) {
         int y = Grid.Current_Block.y;
         int x = Grid.Current_Block.x;
         for(int row = y; row < y + Grid.Current_Block.getHeight(); row++){
@@ -140,49 +141,47 @@ public class GameCanvas extends JPanel implements Runnable {
         am.put("hold", new AbstractAction() { public void actionPerformed(ActionEvent e) { triggerHold(); }});
     }
 
-    public void refreshGrid(){
+    private void refreshGrid(){
         Grid.reset();
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
         repaint();
     }
 
-    public synchronized void moveBlockRight(){
+    private synchronized void moveBlockRight(){
         if (!running || gameover) return;
         if(Grid.Current_Block.checkCollisionRight(Grid.gridBackground)) Grid.Current_Block.moveRight();
         refreshGrid();
     }
 
-    public synchronized void moveBlockLeft(){
+    private synchronized void moveBlockLeft(){
         if (!running || gameover) return;
         if(Grid.Current_Block.checkCollisionLeft(Grid.gridBackground)) Grid.Current_Block.moveLeft();
         refreshGrid();
     }
 
-    public synchronized void moveBlockDown(){
+    private synchronized void moveBlockDown(){
         if (!running || gameover) return;
         if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)) Grid.Current_Block.moveDown();
         refreshGrid();
     }
 
-    public synchronized void rotateBlock(){
+    private synchronized void rotateBlock(){
         if (!running || gameover) return;
-        if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)){
-            Main.rotationSound.play();
-            refreshGrid();
-            return;
-        }
 
-        Grid.Current_Block.x--;
-        if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)){
-            Main.rotationSound.play();
-            refreshGrid();
-            return;
+        int[] checkPush = {0,-1,1};
+        for(int i=0;i<3;i++){
+            Grid.Current_Block.x += checkPush[i];
+            if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)){
+                Main.rotationSound.play();
+                refreshGrid();
+                return;
+            }
+            Grid.Current_Block.x -= checkPush[i];
         }
-        Grid.Current_Block.x++;
         refreshGrid();
     }
 
-    public synchronized void dropBlock(){
+    private synchronized void dropBlock(){
         if (!running || gameover) return;
         Grid.reset();
         Grid.Current_Block.dropDown(Grid.gridBackground);
@@ -198,7 +197,7 @@ public class GameCanvas extends JPanel implements Runnable {
         refreshGrid();
     }
 
-    public synchronized void triggerHold() {
+    private synchronized void triggerHold() {
         if (!running || gameover) return;
         Grid.reset();
         Grid.holdPiece();
@@ -216,7 +215,7 @@ public class GameCanvas extends JPanel implements Runnable {
         repaint();
     }
 
-    public int clearRows() {
+    private int clearRows() {
         int linesCleared = 0;
         for(int row = Grid.Rows - 1; row >= 0; --row) {
             boolean LineFilled = true;
@@ -301,7 +300,7 @@ public class GameCanvas extends JPanel implements Runnable {
         }
     }
 
-    public void drawGhostPiece(Graphics g) {
+    private void drawGhostPiece(Graphics g) {
         if (Grid.Current_Block == null) return;
         int originalY = Grid.Current_Block.y;
         while(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)) {
@@ -325,7 +324,7 @@ public class GameCanvas extends JPanel implements Runnable {
         Grid.Current_Block.y = originalY;
     }
 
-    public void drawHUD(Graphics g) {
+    private void drawHUD(Graphics g) {
         g.setColor(Color.WHITE);
         int fontSize = (int)(Grid.CellSize * 0.8);
         g.setFont(new Font("Monospaced", Font.BOLD, fontSize));
@@ -352,7 +351,7 @@ public class GameCanvas extends JPanel implements Runnable {
         }
     }
 
-    public void drawBlockPreview(Graphics g, TetrisBlock block, int startX, int startY) {
+    private void drawBlockPreview(Graphics g, TetrisBlock block, int startX, int startY) {
         if (block == null) return;
         int previewSize = (int)(Grid.CellSize * 0.8);
         for (int r = 0; r < block.Shape.length; r++) {
@@ -368,5 +367,4 @@ public class GameCanvas extends JPanel implements Runnable {
             }
         }
     }
-
 }
