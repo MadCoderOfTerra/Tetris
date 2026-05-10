@@ -41,6 +41,7 @@ public class GameCanvas extends JPanel implements Runnable {
             try { Thread.sleep(gameSpeed); } catch (InterruptedException var2) { return; }
             if (!paused && !gameover) {
                 score += clearRows();
+                gameSpeed = 1000 - (score/30)*100;
             }
         }
     }
@@ -333,6 +334,7 @@ public class GameCanvas extends JPanel implements Runnable {
         int topY = Grid.y + Grid.CellSize;
         int rightSideX = Grid.x + (Grid.Columns * Grid.CellSize) + gap;
         g.drawString("SCORE: " + score, rightSideX, topY);
+        g.drawString("DIFFICULTY: " + ((1000-gameSpeed)/100), rightSideX, topY + (Grid.CellSize * 1));
         g.drawString("NEXT", rightSideX, topY + (Grid.CellSize * 3));
         g.setColor(new Color(0, 0, 0, 180));
         g.fillRect(rightSideX, topY + (Grid.CellSize * 4), boxSize, boxSize);

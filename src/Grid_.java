@@ -4,8 +4,8 @@ import java.util.Random;
 
 public class Grid_ {
     public int x, y;
-    public int[][] grid = new int[20][10];
-    public int[][] gridBackground = new int[20][10];
+    public int[][] grid = new int[25][12];
+    public int[][] gridBackground = new int[25][12];
     public TetrisBlock Current_Block;
     public int Rows;
     public int Columns;
@@ -19,7 +19,7 @@ public class Grid_ {
     public Grid_(int GameCanvasWidth, int GameCanvasHeight) {
         Columns = grid[0].length;
         Rows = grid.length;
-        CellSize = GameCanvasHeight / 25;
+        CellSize = GameCanvasHeight / 30;
         for(int i=0;i<Rows;i++){
             for(int j=0;j<Columns;j++){
                 grid[i][j] = -1;
@@ -31,9 +31,13 @@ public class Grid_ {
         Next_Block = generateRandomBlock(); 
     }
 
+    private ArrayList<Integer> bag = new ArrayList<>();
     private TetrisBlock generateRandomBlock() {
-        Random r = new Random();
-        int type = r.nextInt(7);
+        if (bag.isEmpty()) {
+            for (int i = 0; i < 7; i++) bag.add(i);
+            java.util.Collections.shuffle(bag);
+        }
+        int type = bag.remove(0);
         if(type==0) return new L_Shape();
         if(type==1) return new J_Shape();
         if(type==2) return new Z_Shape();
