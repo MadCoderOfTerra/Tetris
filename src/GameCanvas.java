@@ -258,6 +258,7 @@ public class GameCanvas extends JPanel implements Runnable {
             gameOver();
             return;
         }
+        score = clearRows();
         refreshGrid();
     }
 
