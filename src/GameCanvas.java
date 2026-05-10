@@ -211,21 +211,25 @@ public class GameCanvas extends JPanel implements Runnable {
     }
 
     public void moveBlockRight(){
+        if (!running || gameover) return;
         if(Grid.Current_Block.checkCollisionRight(Grid.gridBackground)) Grid.Current_Block.moveRight();
         refreshGrid();
     }
 
     public void moveBlockLeft(){
+        if (!running || gameover) return;
         if(Grid.Current_Block.checkCollisionLeft(Grid.gridBackground)) Grid.Current_Block.moveLeft();
         refreshGrid();
     }
 
     public void moveBlockDown(){
+        if (!running || gameover) return;
         if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)) Grid.Current_Block.moveDown();
         refreshGrid();
     }
 
     public void rotateBlock(){
+        if (!running || gameover) return;
         if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)){
             Main.rotationSound.play();
             refreshGrid();
@@ -341,7 +345,7 @@ public class GameCanvas extends JPanel implements Runnable {
     }
 
     public void triggerHold() {
-        if (gameover) return;
+        if (!running || gameover) return;
         Grid.reset();
         Grid.holdPiece();
         Grid.grid = Grid.Current_Block.setBlockInGrid(Grid.grid);
