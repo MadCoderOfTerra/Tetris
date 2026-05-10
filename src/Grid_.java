@@ -14,6 +14,7 @@ public class Grid_ {
     public TetrisBlock Next_Block;
     public TetrisBlock Hold_Block = null;
     public boolean canHold = true;
+    private ArrayList<Integer> bag = new ArrayList<>();
 
     public Grid_(int GameCanvasWidth, int GameCanvasHeight) {
         Columns = grid[0].length;
@@ -30,7 +31,7 @@ public class Grid_ {
         Next_Block = generateRandomBlock(); 
     }
 
-    private ArrayList<Integer> bag = new ArrayList<>();
+
     private TetrisBlock generateRandomBlock() {
         if (bag.isEmpty()) {
             for (int i = 0; i < 7; i++) bag.add(i);
