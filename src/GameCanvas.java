@@ -168,8 +168,8 @@ public class GameCanvas extends JPanel implements Runnable {
     private synchronized void rotateBlock(){
         if (!running || gameover) return;
 
-        int[] checkPush = {0,-1,1};
-        for(int i=0;i<3;i++){
+        int[] checkPush = {0,-1,1,-2};
+        for(int i=0;i<4;i++){
             Grid.Current_Block.x += checkPush[i];
             if(Grid.Current_Block.checkCollisionRotate(Grid.gridBackground)){
                 Main.rotationSound.play();
