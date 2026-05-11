@@ -234,11 +234,13 @@ public class GameCanvas extends JPanel implements Runnable {
                 repaint();
             }
         }
+        int[] scores = {0,100,300,500,800};
+
         if (linesCleared > 0) {
             Main.lineClearSound.play();
         }
         
-        return linesCleared;
+        return scores[linesCleared];
     }
     
     private void clearLine(int row) {
