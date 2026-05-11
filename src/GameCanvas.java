@@ -8,6 +8,7 @@ public class GameCanvas extends JPanel implements Runnable {
     public int Height;
     public int gameSpeed = 1000;
     public int score = 0;
+    public int linesClearAmount = 0;
     public boolean running = true;
     public boolean paused = false;
     public boolean gameover = false;
@@ -34,7 +35,19 @@ public class GameCanvas extends JPanel implements Runnable {
 
     @Override
     public void run() {
+        int c = 0;
+        int lastClearedAmount = 0;
         while(running){
+            if(lastClearedAmount!=linesClearAmount){
+                lastClearedAmount = linesClearAmount;
+                c = 0;
+            }
+            if(linesClearAmount>0)c++;
+            if(c>2){
+                linesClearAmount = 0;
+                c = 0;
+            }
+
             if (!paused && !gameover) {
                 update();
             }
@@ -42,12 +55,14 @@ public class GameCanvas extends JPanel implements Runnable {
             try { Thread.sleep(gameSpeed); } catch (InterruptedException var2) { return; }
             if (!paused && !gameover) {
                 gameSpeed = 1000 - 100*(score/2000);
+                if(gameSpeed<100) gameSpeed = 100;
             }
         }
     }
 
     private synchronized void update() {
         if (!running) return;
+
         Grid.reset();
         if(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)){
             Grid.Current_Block.moveDown();
@@ -238,7 +253,8 @@ public class GameCanvas extends JPanel implements Runnable {
         if (linesCleared > 0) {
             Main.lineClearSound.play();
         }
-        
+
+        linesClearAmount = linesCleared;
         return scores[linesCleared];
     }
     
@@ -303,17 +319,17 @@ public class GameCanvas extends JPanel implements Runnable {
 
     private void drawGhostPiece(Graphics g) {
         if (Grid.Current_Block == null) return;
-        int originalY = Grid.Current_Block.y;
-        while(Grid.Current_Block.checkCollisionUnder(Grid.gridBackground)) {
-            Grid.Current_Block.y++;
+        GhostBlock ghostBlock = new GhostBlock(Grid.Current_Block);
+        while(ghostBlock.checkCollisionUnder(Grid.gridBackground)) {
+            ghostBlock.y++;
         }
-        int ghostY = Grid.Current_Block.y;
-        for(int r = 0; r < Grid.Current_Block.getHeight(); r++){
-            for(int c = 0; c < Grid.Current_Block.getWidth(); c++){
-                if(Grid.Current_Block.Shape[r][c] != -1){
-                    int drawX = Grid.x + ((Grid.Current_Block.x + c) * Grid.CellSize);
+        int ghostY = ghostBlock.y;
+        for(int r = 0; r < ghostBlock.getHeight(); r++){
+            for(int c = 0; c < ghostBlock.getWidth(); c++){
+                if(ghostBlock.Shape[r][c] != -1){
+                    int drawX = Grid.x + ((ghostBlock.x + c) * Grid.CellSize);
                     int drawY = Grid.y + ((ghostY + r) * Grid.CellSize);
-                    int colorIndex = Grid.Current_Block.Shape[r][c];
+                    int colorIndex = ghostBlock.Shape[r][c];
                     Color baseColor = Grid.ColorToChoose[colorIndex];
                     g.setColor(new Color(baseColor.getRed(), baseColor.getGreen(), baseColor.getBlue(), 80));
                     g.fillRect(drawX, drawY, Grid.CellSize, Grid.CellSize);
@@ -322,7 +338,6 @@ public class GameCanvas extends JPanel implements Runnable {
                 }
             }
         }
-        Grid.Current_Block.y = originalY;
     }
 
     private void drawHUD(Graphics g) {
@@ -341,6 +356,10 @@ public class GameCanvas extends JPanel implements Runnable {
         g.setColor(Color.WHITE);
         g.drawRect(rightSideX, topY + (Grid.CellSize * 4), boxSize, boxSize);
         drawBlockPreview(g, Grid.Next_Block, rightSideX + Grid.CellSize, topY + (Grid.CellSize * 5));
+
+        String[] scores = {"","SINGLE!","DOUBLE!!","TRIPLE!!!","QUADRUPLE!!!!!"};
+        g.drawString(scores[linesClearAmount],rightSideX,topY + (Grid.CellSize * 12));
+
         int leftSideX = Grid.x - boxSize - gap;
         g.drawString("HOLD", leftSideX, topY + (Grid.CellSize * 3));
         g.setColor(new Color(0, 0, 0, 180));

@@ -18,6 +18,15 @@ public abstract class TetrisBlock {
         Rotate();
     }
 
+    public TetrisBlock(TetrisBlock other) {
+        this.Shape = other.Shape;
+        this.Shape_Rotation = other.Shape_Rotation;
+        this.x = other.x;
+        this.y = other.y;
+        this.CurrentOrientation = other.CurrentOrientation;
+        this.colorID = other.colorID;
+    }
+
     public void Find4Rotation(){
         Shape_Rotation = new int[4][][];
         for(int i = 0; i < 4; ++i) {
