@@ -41,8 +41,7 @@ public class GameCanvas extends JPanel implements Runnable {
             repaint();
             try { Thread.sleep(gameSpeed); } catch (InterruptedException var2) { return; }
             if (!paused && !gameover) {
-                score += clearRows();
-                gameSpeed = 1000 - (score/30)*100;
+                gameSpeed = 1000 - 100*(score/2000);
             }
         }
     }
